@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Northstar: The Launch Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#141414; --paper:#FBFBFB; --teal:#2E9D91; --flare:#F2541D; --blue:#4F71F2;
+    --teal-dim: rgba(46,157,145,0.14); --flare-dim: rgba(242,84,29,0.14); --blue-dim: rgba(79,113,242,0.14);
+    --line: rgba(20,20,20,0.12); --panel: #ffffff;
+    --shadow: 0 1px 2px rgba(20,20,20,0.04), 0 8px 24px rgba(20,20,20,0.06);
+    --shadow-lift: 0 4px 10px rgba(20,20,20,0.06), 0 18px 40px rgba(20,20,20,0.10);
+    --radius: 16px;
+    --font-display:'Space Grotesk', system-ui, sans-serif;
+    --font-body:'Inter', system-ui, sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(1100px 560px at 88% -8%, var(--teal-dim), transparent 58%),
+                radial-gradient(900px 520px at -8% 18%, var(--blue-dim), transparent 52%),
+                radial-gradient(700px 420px at 50% 115%, var(--flare-dim), transparent 60%),
+                var(--paper);
+    color:var(--ink); font-family:var(--font-body); min-height:100vh; -webkit-font-smoothing:antialiased;
+  }
+  #app{max-width:1280px;margin:0 auto;padding:20px 24px 60px;}
+  @keyframes shellIn{ from{ opacity:0; transform:translateY(10px); } to{ opacity:1; transform:translateY(0); } }
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;} }
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand-logo{height:26px;width:auto;display:block;}
+  .brand-sub{font-size:12px;color:#6b6b6b;font-weight:600;letter-spacing:0.03em;text-transform:uppercase;padding-left:12px;border-left:1px solid var(--line);}
+  .session-pill{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 14px;font-size:12px;font-weight:600;box-shadow:var(--shadow);}
+  .session-dot{width:8px;height:8px;border-radius:50%;background:#c7c4b8;}
+  .session-dot.live{background:var(--teal);animation:blink 1.6s infinite;}
+  .session-dot.waiting{background:var(--flare);}
+  .who-pill{display:flex;align-items:center;gap:10px;font-size:12.5px;color:#555;}
+  .who-pill button{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;font-size:11.5px;cursor:pointer;font-family:var(--font-body);}
+
+  .runway{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 18px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow);font-family:var(--font-mono);}
+  .runway-track{position:relative;width:220px;height:6px;background:#ecebe6;border-radius:999px;overflow:hidden;}
+  .runway-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:999px;transition:width .5s ease;}
+  .runway-weeks{display:flex;gap:3px;font-size:10px;color:#8a8a8a;}
+  .runway-week{width:32px;text-align:center;font-weight:600;}
+  .runway-week.done{color:var(--teal);}
+  .runway-label{font-size:11px;color:#555;font-weight:600;}
+
+  .shell{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow-lift);overflow:hidden;min-height:560px;position:relative;animation:shellIn .38s ease;}
+  .shell::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--flare),var(--blue) 45%,var(--teal) 85%);}
+  .shell-head{padding:26px 26px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:linear-gradient(180deg, rgba(20,20,20,0.025), transparent);}
+  .shell-head h1{font-family:var(--font-display);font-size:22px;margin:0 0 4px;letter-spacing:-0.015em;}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:0.09em;color:var(--flare);font-weight:700;margin-bottom:7px;display:inline-flex;align-items:center;gap:6px;background:var(--flare-dim);padding:4px 10px;border-radius:999px;}
+  .shell-head p{margin:0;color:#5b5b5b;font-size:13.5px;max-width:640px;line-height:1.5;}
+
+  .timer-console{display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--paper);padding:10px 16px;border-radius:12px;font-family:var(--font-mono);min-width:180px;}
+  .timer-dial{width:36px;height:36px;border-radius:50%;position:relative;flex:none;background:conic-gradient(var(--teal) var(--pct,0%), rgba(255,255,255,0.14) 0);transition:background 0.6s linear;}
+  .timer-dial::after{content:"";position:absolute;inset:4px;border-radius:50%;background:var(--ink);}
+  .timer-text{line-height:1.15;}
+  .timer-text .tt-label{font-size:9px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.65;}
+  .timer-text .tt-value{font-size:16px;font-weight:600;}
+  .timer-console.warn{background:#3a2410;} .timer-console.hot{background:#3a1410;}
+
+  .pane-grid{display:grid;grid-template-columns:60% 40%;min-height:480px;}
+  @media (max-width:880px){ .pane-grid{grid-template-columns:1fr;} }
+  .pane-main{padding:26px;border-right:1px solid var(--line);}
+  .pane-side{padding:24px;background:#fafaf8;display:flex;flex-direction:column;gap:16px;}
+  @media (max-width:880px){ .pane-main{border-right:none;border-bottom:1px solid var(--line);} }
+
+  .side-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;box-shadow:0 1px 2px rgba(20,20,20,0.03);}
+  .side-card h3{margin:0 0 8px;font-family:var(--font-display);font-size:13px;letter-spacing:0.01em;display:flex;align-items:center;gap:7px;}
+  .side-card h3::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--blue);flex:none;transform:rotate(45deg);}
+  .side-card p, .side-card li{font-size:13px;color:#4b4b4b;line-height:1.55;}
+  .side-card ul{margin:6px 0 0;padding-left:18px;}
+
+  .progress-dots{display:flex;gap:8px;align-items:center;}
+  .pdot{width:9px;height:9px;border-radius:50%;background:#ddd9cd;flex:none;}
+  .pdot.active{background:var(--flare);width:22px;border-radius:6px;}
+  .pdot.done{background:var(--teal);}
+
+  .pulse-feed{display:flex;flex-direction:column;gap:8px;max-height:150px;overflow:hidden;}
+  .emo-meter{height:8px;border-radius:999px;background:#ecebe6;overflow:hidden;margin-top:8px;}
+  .emo-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--flare));width:20%;transition:width .6s ease;}
+
+  .btn{font-family:var(--font-body);font-weight:600;font-size:13.5px;border-radius:11px;padding:11px 22px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer;transition:transform .14s ease, box-shadow .14s ease, opacity .14s ease;box-shadow:0 1px 2px rgba(20,20,20,0.08);}
+  .btn:hover{transform:translateY(-1.5px);box-shadow:0 6px 16px rgba(20,20,20,0.18);}
+  .btn:active{transform:translateY(0);}
+  .btn:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn.ghost{background:transparent;color:var(--ink);box-shadow:none;}
+  .btn.ghost:hover{box-shadow:0 2px 8px rgba(20,20,20,0.08);}
+  .btn.accent{background:linear-gradient(135deg,#F2541D,#ff7a45);border-color:var(--flare);}
+  .btn.accent:hover{box-shadow:0 8px 20px rgba(242,84,29,0.35);}
+  .btn.teal{background:linear-gradient(135deg,#2E9D91,#3fc4b5);border-color:var(--teal);}
+  .btn.teal:hover{box-shadow:0 8px 20px rgba(46,157,145,0.32);}
+  .btn.sm{padding:7px 12px;font-size:12px;border-radius:8px;}
+  .btn.block{width:100%;}
+  .actions-row{display:flex;justify-content:space-between;align-items:center;margin-top:22px;gap:12px;flex-wrap:wrap;}
+
+  /* ---------- Landing / Login ---------- */
+  .landing-hero{padding:56px 40px 26px;text-align:center;position:relative;background:linear-gradient(180deg, rgba(46,157,145,0.07), rgba(79,113,242,0.04) 55%, transparent);}
+  .landing-hero .eyebrow{color:var(--flare);}
+  .landing-hero h1{font-family:var(--font-display);font-size:36px;margin:10px 0 12px;letter-spacing:-0.02em;}
+  .landing-hero p{font-size:15px;color:#5a5a5a;max-width:560px;margin:0 auto;line-height:1.65;}
+  .login-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--line);}
+  @media (max-width:760px){ .login-grid{grid-template-columns:1fr;} }
+  .login-pane{padding:38px 44px;position:relative;transition:background .2s ease;}
+  .login-pane:hover{background:rgba(20,20,20,0.012);}
+  .login-pane:first-child{border-right:1px solid var(--line);}
+  .login-pane::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;}
+  .login-pane.learner::before{background:linear-gradient(90deg,var(--teal),#7fd6c9);}
+  .login-pane.trainer::before{background:linear-gradient(90deg,var(--blue),#9aaef8);}
+  @media (max-width:760px){ .login-pane:first-child{border-right:none;border-bottom:1px solid var(--line);} }
+  .login-pane .lp-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:17px;margin-bottom:16px;box-shadow:0 4px 12px rgba(20,20,20,0.1);}
+  .login-pane.learner .lp-icon{background:linear-gradient(135deg,var(--teal),#69c2b5);color:#fff;}
+  .login-pane.trainer .lp-icon{background:linear-gradient(135deg,var(--blue),#8296f5);color:#fff;}
+  .login-pane h2{font-family:var(--font-display);font-size:19px;margin:0 0 4px;}
+  .login-pane .lp-sub{font-size:12.5px;color:#777;margin:0 0 22px;line-height:1.5;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;font-weight:600;margin-bottom:6px;color:#333;}
+  .field input{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;font-family:var(--font-body);background:#fff;}
+  .field input:focus{outline:2px solid var(--blue);outline-offset:1px;}
+  .field-err{font-size:11.5px;color:var(--flare);margin-top:5px;display:none;}
+  .field-err.show{display:block;}
+  .login-foot{font-size:11px;color:#999;margin-top:12px;line-height:1.5;}
+
+  /* ---------- Waiting page ---------- */
+  .wait-wrap{padding:36px 40px;}
+  .wait-badge{display:inline-flex;align-items:center;gap:8px;background:var(--flare-dim);color:#b23a10;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:999px;letter-spacing:0.02em;}
+  .wait-badge.live{background:var(--teal-dim);color:#1c6b62;}
+  .wait-badge .wb-dot{width:7px;height:7px;border-radius:50%;background:#b23a10;animation:blink 1.4s infinite;}
+  .wait-badge.live .wb-dot{background:#1c6b62;}
+  .wait-title{font-family:var(--font-display);font-size:26px;margin:14px 0 6px;letter-spacing:-0.01em;}
+  .wait-overview{font-size:14px;color:#4a4a4a;line-height:1.65;max-width:720px;margin:0 0 26px;}
+  .wait-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;}
+  @media (max-width:760px){ .wait-grid{grid-template-columns:1fr;} }
+  .wait-card{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:#fff;position:relative;overflow:hidden;}
+  .wait-card::before{content:"";position:absolute;top:0;left:0;width:3px;height:100%;background:var(--teal);}
+  .wait-card:nth-child(2)::before{background:var(--blue);}
+  .wait-card:nth-child(3)::before{background:var(--flare);}
+  .wait-card:nth-child(4)::before{background:#8a6fd4;}
+  .wait-card h4{font-family:var(--font-display);font-size:13.5px;margin:0 0 10px;}
+  .wait-card ul{margin:0;padding-left:18px;font-size:13px;color:#4a4a4a;line-height:1.7;}
+  .wait-meta-row{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:26px;}
+  .wait-meta{font-size:12.5px;color:#666;}
+  .wait-meta b{display:block;font-family:var(--font-display);font-size:16px;color:var(--ink);margin-top:2px;}
+  .wait-cta{border:1px solid var(--line);border-radius:14px;padding:26px;text-align:center;background:#fdfdfb;}
+  .wait-cta .wc-msg{font-size:13px;color:#8a5a2e;background:var(--flare-dim);border-radius:10px;padding:10px 14px;margin-bottom:16px;display:inline-block;}
+  .wait-cta .wc-msg.ready{color:#1c6b62;background:var(--teal-dim);}
+  .wait-cta .wc-btn{font-size:15px;padding:14px 36px;}
+
+  /* ---------- Interrupt overlay ---------- */
+  .interrupt-veil{position:fixed;inset:0;background:rgba(20,20,20,0.75);display:flex;align-items:center;justify-content:center;z-index:200;color:#fff;text-align:center;}
+  .interrupt-veil .iv-box{max-width:360px;}
+  .interrupt-veil h3{font-family:var(--font-display);font-size:20px;margin:0 0 8px;}
+  .interrupt-veil p{font-size:13.5px;color:#ddd;line-height:1.5;}
+
+  /* ---------- Trainer dashboard ---------- */
+  .dash-wrap{padding:26px;}
+  .stat-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px;}
+  @media (max-width:900px){ .stat-row{grid-template-columns:repeat(2,1fr);} }
+  .stat-card{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fff;position:relative;overflow:hidden;}
+  .stat-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--teal),var(--blue));}
+  .stat-card:nth-child(2)::before{background:linear-gradient(90deg,var(--flare),#ff9466);}
+  .stat-card:nth-child(3)::before{background:linear-gradient(90deg,var(--blue),#9aaef8);}
+  .stat-card:nth-child(4)::before{background:linear-gradient(90deg,var(--teal),#7fd6c9);}
+  .stat-card:nth-child(5)::before{background:linear-gradient(90deg,#8a6fd4,#b7a4e8);}
+  .stat-card .sc-label{font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:#999;font-weight:600;}
+  .stat-card .sc-value{font-family:var(--font-display);font-size:24px;margin-top:4px;}
+
+  .control-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:22px;}
+  .control-bar .cb-status{display:flex;align-items:center;gap:10px;font-size:13.5px;font-weight:600;}
+  .control-bar .cb-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+  .table-wrap{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;}
+  table.roster{width:100%;border-collapse:collapse;font-size:13px;}
+  table.roster thead th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:0.03em;color:#888;padding:12px 14px;border-bottom:1px solid var(--line);background:#fafaf8;}
+  table.roster tbody td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  table.roster tbody tr:last-child td{border-bottom:none;}
+  table.roster tbody tr:hover{background:#fafaf8;}
+  .status-chip{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;display:inline-block;}
+  .status-chip.waiting{background:#f1efe6;color:#8a7d5c;}
+  .status-chip.progress{background:var(--blue-dim);color:#2e4bb8;}
+  .status-chip.completed{background:var(--teal-dim);color:#1c6b62;}
+  .row-expand-btn{border:1px solid var(--line);background:#fff;border-radius:7px;padding:4px 9px;font-size:11px;cursor:pointer;}
+  .empty-row td{text-align:center;color:#999;padding:30px;font-size:13px;}
+  .detail-row td{background:#fafaf8;padding:16px 20px;}
+  .detail-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:10px;}
+  @media (max-width:900px){.detail-grid{grid-template-columns:1fr 1fr;}}
+  .detail-item{font-size:12px;}
+  .detail-item .di-label{color:#999;font-size:10.5px;text-transform:uppercase;letter-spacing:0.03em;}
+  .detail-item .di-val{font-family:var(--font-mono);font-size:12.5px;margin-top:2px;}
+  .detail-text{font-size:12.5px;color:#444;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-top:4px;line-height:1.5;}
+  .last-sync{font-size:11px;color:#aaa;font-family:var(--font-mono);}
+
+  /* ---------- toasts / modal (shared) ---------- */
+  .toast-wrap{position:fixed;bottom:20px;right:20px;z-index:50;display:flex;flex-direction:column;gap:8px;max-width:300px;}
+  .toast{background:var(--ink);color:#fff;border-radius:10px;padding:12px 14px;font-size:12.5px;box-shadow:0 8px 24px rgba(0,0,0,0.25);animation:toastin .35s ease;line-height:1.4;}
+  .toast b{color:var(--flare);}
+  @keyframes toastin{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:0.25;}}
+
+  .modal-veil{position:fixed;inset:0;background:rgba(20,20,20,0.5);display:flex;align-items:center;justify-content:center;z-index:100;}
+  .modal-box{background:#fff;border-radius:14px;padding:26px;max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+  .modal-box h3{font-family:var(--font-display);margin:0 0 8px;font-size:17px;}
+  .modal-box p{font-size:13.5px;color:#555;line-height:1.55;margin:0 0 18px;}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+
+  /* ---------- Activity 1 (unchanged mechanics) ---------- */
+  .inbox-strip{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12.5px;color:#555;}
+  .inbox-dot{width:8px;height:8px;border-radius:50%;background:var(--flare);animation:blink 1.6s infinite;}
+  .card-pool{display:flex;flex-wrap:wrap;gap:10px;min-height:56px;padding:10px;border:1.5px dashed var(--line);border-radius:12px;margin-bottom:16px;}
+  .item-card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;cursor:grab;box-shadow:0 1px 2px rgba(0,0,0,0.05);max-width:270px;line-height:1.4;user-select:none;}
+  .item-card:active{cursor:grabbing;} .item-card.dragging{opacity:0.35;}
+  .drop-cols{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .drop-col{border-radius:12px;padding:14px;min-height:150px;border:2px dashed var(--line);background:#fdfdfb;}
+  .drop-col.over{border-color:var(--teal);background:var(--teal-dim);}
+  .drop-col h4{margin:0 0 10px;font-family:var(--font-display);font-size:13px;display:flex;align-items:center;gap:6px;}
+  .drop-col .dc-cards{display:flex;flex-direction:column;gap:8px;min-height:40px;}
+  .drop-col.in h4{color:#1c6b62;} .drop-col.out h4{color:#b23a10;}
+  .success-box{margin-top:20px;}
+  .success-box label{font-size:12.5px;font-weight:600;display:block;margin-bottom:6px;color:#333;}
+  .success-box textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--font-body);font-size:13.5px;resize:vertical;background:#fff;}
+  .success-box textarea:focus{outline:2px solid var(--blue);outline-offset:1px;}
+  .success-hint{font-size:11.5px;color:#8a8a8a;margin-top:5px;}
+
+  /* ---------- Activity 2 ---------- */
+  .quad-wrap{display:flex;gap:16px;flex-wrap:wrap;}
+  .chip-pool{display:flex;flex-direction:column;gap:8px;min-width:150px;}
+  .stake-chip{background:#fff;border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:600;cursor:grab;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,0.05);}
+  .stake-chip.dragging{opacity:0.35;}
+  .quad-grid{flex:1;min-width:280px;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;position:relative;aspect-ratio:1/1;max-width:420px;}
+  .quad-cell{border:2px dashed var(--line);border-radius:10px;padding:10px;min-height:90px;background:#fdfdfb;display:flex;flex-direction:column;gap:6px;}
+  .quad-cell.over{border-color:var(--blue);background:var(--blue-dim);}
+  .quad-cell .qc-title{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.03em;color:#999;}
+  .quad-cell select{margin-top:auto;font-size:11px;border-radius:6px;border:1px solid var(--line);padding:4px 6px;font-family:var(--font-body);background:#fff;}
+  .quad-cell .qc-chips{display:flex;flex-wrap:wrap;gap:5px;min-height:24px;}
+
+  /* ---------- Activity 3 ---------- */
+  .seq-list{display:flex;flex-direction:column;gap:8px;}
+  .seq-item{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:grab;font-size:13px;}
+  .seq-item.dragging{opacity:0.35;}
+  .seq-idx{width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--font-mono);font-size:11px;display:flex;align-items:center;justify-content:center;flex:none;}
+  .seq-text{flex:1;line-height:1.35;}
+  .star-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 9px;cursor:pointer;font-size:12px;flex:none;}
+  .star-btn.starred{background:var(--flare);border-color:var(--flare);color:#fff;}
+  .milestone-count{font-size:12px;color:#666;margin-top:10px;}
+
+  /* ---------- Activity 4 ---------- */
+  .risk-layout{display:flex;gap:18px;flex-wrap:wrap;}
+  .risk-list{flex:1;min-width:260px;display:flex;flex-direction:column;gap:10px;}
+  .risk-card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fff;}
+  .risk-card .rc-text{font-size:13px;line-height:1.4;margin-bottom:8px;}
+  .rc-row{display:flex;gap:10px;align-items:center;font-size:11.5px;color:#666;flex-wrap:wrap;}
+  .seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+  .seg button{border:none;background:#fff;font-size:11px;padding:5px 9px;cursor:pointer;font-family:var(--font-body);border-right:1px solid var(--line);}
+  .seg button:last-child{border-right:none;}
+  .seg button.on-low.active{background:#dff2ee;color:#1c6b62;}
+  .seg button.on-med.active{background:#ffe9db;color:#b25412;}
+  .seg button.on-high.active{background:#ffdad2;color:#b23a10;}
+  .matrix-box{width:230px;flex:none;}
+  .matrix-svg-wrap{border:1px solid var(--line);border-radius:12px;background:#fff;padding:10px;}
+  .matrix-caption{font-size:11px;color:#999;text-align:center;margin-top:6px;}
+  .mitigation-block{margin-top:18px;border-top:1px solid var(--line);padding-top:16px;}
+  .mitigation-block h4{font-family:var(--font-display);font-size:13.5px;margin:0 0 4px;}
+  .mitigation-block p.desc{font-size:12.5px;color:#666;margin:0 0 12px;}
+  .mit-item{margin-bottom:14px;}
+  .mit-item .mi-label{font-size:12.5px;font-weight:600;margin-bottom:6px;display:block;}
+  .mit-item textarea{width:100%;min-height:60px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--font-body);font-size:13px;resize:vertical;}
+
+  /* ---------- debrief ---------- */
+  .debrief-hero{text-align:center;padding:40px 20px 14px;position:relative;}
+  @keyframes ringPop{ from{ transform:scale(0.85); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .score-ring{width:168px;height:168px;border-radius:50%;margin:0 auto 16px;position:relative;background:conic-gradient(var(--teal) var(--score-pct,0%), #ecebe6 0);display:flex;align-items:center;justify-content:center;animation:ringPop .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 8px 30px rgba(46,157,145,0.18);}
+  .score-ring.tier-gold{box-shadow:0 8px 34px rgba(46,157,145,0.28);}
+  .score-ring.tier-silver{box-shadow:0 8px 30px rgba(79,113,242,0.22);}
+  .score-ring.tier-bronze, .score-ring.tier-rework{box-shadow:0 8px 30px rgba(242,84,29,0.2);}
+  .score-ring::after{content:"";position:absolute;inset:13px;border-radius:50%;background:#fff;}
+  .score-ring-inner{position:relative;z-index:1;text-align:center;}
+  .score-ring-inner .sr-num{font-family:var(--font-display);font-size:38px;font-weight:700;}
+  .score-ring-inner .sr-den{font-size:11px;color:#999;}
+  .pass-badge{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:7px 18px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:0.02em;box-shadow:0 2px 8px rgba(20,20,20,0.06);}
+  .pass-badge.tier-gold{background:linear-gradient(135deg,var(--teal-dim),rgba(46,157,145,0.24));color:#155b53;}
+  .pass-badge.tier-silver{background:linear-gradient(135deg,var(--blue-dim),rgba(79,113,242,0.22));color:#2e4bb8;}
+  .pass-badge.tier-bronze{background:linear-gradient(135deg,var(--flare-dim),rgba(242,84,29,0.2));color:#b23a10;}
+  .pass-badge.tier-rework{background:linear-gradient(135deg,rgba(20,20,20,0.08),rgba(20,20,20,0.05));color:#333;}
+  .debrief-remark{max-width:560px;margin:14px auto 0;font-size:13.5px;color:#555;line-height:1.6;}
+  .breakdown-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:8px 30px 30px;}
+  @media (max-width:760px){.breakdown-grid{grid-template-columns:1fr 1fr;}}
+  .bd-card{border:1px solid var(--line);border-radius:12px;padding:16px;background:#fff;position:relative;overflow:hidden;transition:transform .15s ease, box-shadow .15s ease;}
+  .bd-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lift);}
+  .bd-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;}
+  .bd-card.badge-strong::before{background:var(--teal);}
+  .bd-card.badge-solid::before{background:var(--blue);}
+  .bd-card.badge-needs::before{background:var(--flare);}
+  .bd-card h4{font-family:var(--font-display);font-size:12.5px;margin:0 0 8px;display:flex;align-items:center;justify-content:space-between;gap:6px;}
+  .bd-badge-chip{font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;}
+  .bd-badge-chip.teal{background:var(--teal-dim);color:#1c6b62;}
+  .bd-badge-chip.blue{background:var(--blue-dim);color:#2e4bb8;}
+  .bd-badge-chip.flare{background:var(--flare-dim);color:#b23a10;}
+  .bd-bar{height:7px;border-radius:999px;background:#ecebe6;overflow:hidden;margin-bottom:6px;}
+  .bd-fill{height:100%;background:var(--blue);}
+  .bd-card .bd-score{font-family:var(--font-mono);font-size:12px;color:#666;}
+  .bd-card .bd-note{font-size:11.5px;color:#8a8a8a;margin-top:6px;line-height:1.4;}
+  .reflect-box{margin:0 30px 24px;border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:#fdfdfb;}
+  .reflect-box h4{font-family:var(--font-display);font-size:13.5px;margin:0 0 6px;}
+  .reflect-box textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--font-body);font-size:13.5px;resize:vertical;}
+  .footer-actions{display:flex;justify-content:center;gap:12px;padding:0 30px 34px;flex-wrap:wrap;}
+
+  /* ---------- full answer overview (debrief accordion) ---------- */
+  .overview-wrap{margin:0 30px 30px;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;}
+  .overview-header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fafaf8;}
+  .overview-header h3{font-family:var(--font-display);font-size:15px;margin:0;}
+  .acc-section{border-bottom:1px solid var(--line);}
+  .acc-section:last-child{border-bottom:none;}
+  .acc-trigger{width:100%;text-align:left;background:none;border:none;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-family:var(--font-body);gap:12px;}
+  .acc-trigger:hover{background:#fafaf8;}
+  .acc-trigger-left{display:flex;align-items:center;gap:10px;}
+  .acc-trigger .at-title{font-weight:700;font-size:13.5px;}
+  .acc-chevron{font-size:11px;color:#999;transition:transform .2s ease;}
+  .acc-section.open .acc-chevron{transform:rotate(180deg);}
+  .acc-body{max-height:0;overflow:hidden;transition:max-height .25s ease;}
+  .acc-section.open .acc-body{max-height:4000px;}
+  .acc-body-inner{padding:4px 20px 18px;}
+
+  /* ---------- review screens (post-activity feedback) ---------- */
+  .review-shell-body{padding:8px 0 0;}
+  .review-wrap{padding:30px 34px 34px;}
+  .review-scoreline{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
+  .review-score-badge{font-size:11.5px;font-weight:700;padding:5px 13px;border-radius:999px;text-transform:uppercase;letter-spacing:0.03em;}
+  .review-score-badge.teal{background:var(--teal-dim);color:#1c6b62;}
+  .review-score-badge.blue{background:var(--blue-dim);color:#2e4bb8;}
+  .review-score-badge.flare{background:var(--flare-dim);color:#b23a10;}
+  .review-score-num{font-family:var(--font-mono);font-size:13px;color:#666;}
+  .review-title{font-family:var(--font-display);font-size:24px;margin:4px 0 8px;letter-spacing:-0.01em;}
+  .review-remark{font-size:13.5px;color:#555;line-height:1.6;max-width:680px;margin:0 0 22px;}
+  .review-list{display:flex;flex-direction:column;gap:10px;}
+  .review-subheading{font-family:var(--font-display);font-size:13px;margin:10px 0 -2px;color:#888;text-transform:uppercase;letter-spacing:0.04em;}
+  .review-item{display:flex;gap:12px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff;}
+  .review-item.ok{border-left:3px solid var(--teal);}
+  .review-item.bad{border-left:3px solid var(--flare);}
+  .review-item.key{border-left:3px solid var(--blue);}
+  .ri-icon{width:24px;height:24px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-top:1px;}
+  .ri-icon.ok{background:var(--teal-dim);color:#1c6b62;}
+  .ri-icon.bad{background:var(--flare-dim);color:#b23a10;}
+  .ri-icon.key{background:var(--blue-dim);color:#2e4bb8;font-size:11px;}
+  .ri-body{flex:1;}
+  .ri-headline{font-weight:600;font-size:13.5px;margin-bottom:3px;}
+  .ri-sub{font-size:12.5px;color:#666;margin-bottom:5px;line-height:1.5;}
+  .ri-why{font-size:12.5px;color:#4b4b4b;line-height:1.55;background:#fafaf8;border-radius:8px;padding:8px 10px;}
+
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toastWrap" class="toast-wrap"></div>
+<div id="modalRoot"></div>
+<div id="interruptRoot"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* =========================================================
+   STORAGE ADAPTER
+   Priority:
+     1) /api/store  — Express + Railway Postgres (production)
+     2) window.storage — Claude artifact runtime (if present)
+     3) localStorage — same-browser fallback for offline/dev
+========================================================= */
+var Store = {
+  mode: 'api',
+  async get(key){
+    try{
+      if(this.mode === 'api'){
+        var r = await fetch('/api/store/' + encodeURIComponent(key));
+        if(r.status === 404) return null;
+        if(!r.ok) throw new Error('get failed');
+        var data = await r.json();
+        return data.value;
+      }
+      if(typeof window.storage !== 'undefined' && window.storage){
+        var ar = await window.storage.get(key, true);
+        return ar ? JSON.parse(ar.value) : null;
+      }
+      var raw = localStorage.getItem('ns_'+key);
+      return raw ? JSON.parse(raw) : null;
+    }catch(e){ return null; }
+  },
+  async set(key, value){
+    try{
+      if(this.mode === 'api'){
+        var r = await fetch('/api/store/' + encodeURIComponent(key), {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ value: value })
+        });
+        return r.ok;
+      }
+      if(typeof window.storage !== 'undefined' && window.storage){
+        await window.storage.set(key, JSON.stringify(value), true);
+        return true;
+      }
+      localStorage.setItem('ns_'+key, JSON.stringify(value));
+      return true;
+    }catch(e){ return false; }
+  },
+  async del(key){
+    try{
+      if(this.mode === 'api'){
+        await fetch('/api/store/' + encodeURIComponent(key), { method: 'DELETE' });
+        return;
+      }
+      if(typeof window.storage !== 'undefined' && window.storage){
+        await window.storage.delete(key, true);
+        return;
+      }
+      localStorage.removeItem('ns_'+key);
+    }catch(e){}
+  },
+  async listKeys(prefix){
+    try{
+      if(this.mode === 'api'){
+        var r = await fetch('/api/store?prefix=' + encodeURIComponent(prefix));
+        if(!r.ok) return [];
+        var data = await r.json();
+        return data.keys || [];
+      }
+      if(typeof window.storage !== 'undefined' && window.storage){
+        var lr = await window.storage.list(prefix, true);
+        return lr ? lr.keys : [];
+      }
+      var keys = [];
+      for(var i=0;i<localStorage.length;i++){
+        var k = localStorage.key(i);
+        if(k.indexOf('ns_'+prefix) === 0) keys.push(k.slice(3));
+      }
+      return keys;
+    }catch(e){ return []; }
+  }
+};
+
+var SESSION_KEY = 'session';
+var LEARNER_PREFIX = 'learner:';
+var TRAINER_CODE = '2468';
+var LOGO_SRC = 'data:image/png;base64,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';
+
+function sanitizeId(email){
+  return email.trim().toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+}
+function nameFromEmail(email){
+  var prefix = email.split('@')[0] || email;
+  return prefix.split(/[._\-+]+/).filter(Boolean).map(function(w){
+    return w.charAt(0).toUpperCase() + w.slice(1);
+  }).join(' ') || 'Learner';
+}
+function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
+
+/* =========================================================
+   SIMULATION CONTENT DATA
+========================================================= */
+var SCOPE_ITEMS = [
+  {id:'s1', text:"Redesign the client onboarding form so it's shorter and clearer", correct:'in', why:"This directly targets the onboarding experience Northstar exists to fix \u2014 squarely in scope."},
+  {id:'s2', text:"Overhaul the entire company CRM system", correct:'out', why:"A full CRM overhaul is a much bigger initiative than fixing onboarding \u2014 pulling it in would blow the timeline and budget."},
+  {id:'s3', text:"Create a clear handoff process between Sales, Ops, and Finance", correct:'in', why:"The broken handoff between Sales, Ops, and Finance is the core problem this project exists to solve."},
+  {id:'s4', text:"Give every employee new laptops", correct:'out', why:"New laptops are an IT/facilities initiative with no direct link to how clients get onboarded."},
+  {id:'s5', text:"Pilot the new onboarding process with 3 real clients before full rollout", correct:'in', why:"Piloting with real clients before full rollout is exactly how you de-risk this launch."},
+  {id:'s6', text:"Rebuild the company website", correct:'out', why:"A website rebuild is a marketing/branding project, unrelated to the internal onboarding handoff."}
+];
+var VAGUE_PHRASES = ["goes well","works out","is a success","people like it","everyone is happy","it's done","better","smoother","successful"];
+var VERIFY_WORDS = ["verified","measured","confirmed","tracked","reported","reviewed","checked","signed off","validated","audited","within"];
+
+var STAKEHOLDERS = [
+  {id:'st1', name:'CEO', quadrant:'HH', why:"High power to approve or kill the project, and high interest since onboarding speed ties directly to metrics leadership tracks."},
+  {id:'st2', name:'Sales Director', quadrant:'HH', why:"Directly affected by the new handoff process and has real influence over how her team adopts it \u2014 needs close, active management."},
+  {id:'st3', name:'Finance Manager', quadrant:'HL', why:"Holds sign-off power over process changes but isn't deeply invested day-to-day \u2014 keep him satisfied so approvals don't stall."},
+  {id:'st4', name:'Frontline Ops Staff', quadrant:'LH', why:"Low formal power, but they live the new process daily \u2014 under-informing them breeds the quiet resistance that kills adoption."},
+  {id:'st5', name:'IT Support Lead', quadrant:'LL', why:"Peripheral to this initiative for now \u2014 monitor for integration dependencies without heavy engagement."}
+];
+var QUADRANTS = {
+  HH:{label:'High Power / High Interest', approach:'manage'},
+  HL:{label:'High Power / Low Interest', approach:'satisfied'},
+  LH:{label:'Low Power / High Interest', approach:'informed'},
+  LL:{label:'Low Power / Low Interest', approach:'monitor'}
+};
+var APPROACH_LABELS = { manage:'Manage Closely', satisfied:'Keep Satisfied', informed:'Keep Informed', monitor:'Monitor' };
+
+var ROADMAP_TASKS = [
+  {id:'r1', text:'Gather requirements from Sales and Ops', order:1, why:"You can't design a fix for a handoff problem you haven't diagnosed \u2014 requirements come first."},
+  {id:'r2', text:'Design the new onboarding form', order:2, why:"Design translates the requirements you gathered into something concrete to test and approve."},
+  {id:'r3', text:'Get sign-off from Finance on process changes', order:3, why:"Lock in approval before you invest in testing and training \u2014 reversing a design after training staff is expensive."},
+  {id:'r4', text:'Test the new form with 3 real clients', order:4, why:"Validate with real clients before you train staff or launch wide \u2014 catch problems while they're still cheap to fix."},
+  {id:'r5', text:'Train frontline staff on the new process', order:5, why:"Train the team on a version that's already tested and approved, right before they need to use it."},
+  {id:'r6', text:'Launch to all new clients', order:6, why:"The final step \u2014 only once requirements, design, sign-off, testing, and training are all done."}
+];
+var CORRECT_MILESTONES = ['r3','r4','r6'];
+var MILESTONE_WHY = {
+  r1:"A necessary early step, but it's internal groundwork \u2014 not a checkpoint leadership needs to track.",
+  r2:"Design work in progress isn't a milestone \u2014 it's not yet a decision point or a deliverable leadership can verify.",
+  r3:"This is a real go/no-go gate \u2014 leadership needs to know the process changes are formally approved.",
+  r4:"This is your validation gate \u2014 it tells leadership whether the fix actually works before wider exposure.",
+  r5:"Important, but it's execution, not a checkpoint \u2014 there's no decision being made here.",
+  r6:"This is the delivery gate \u2014 the moment leadership can confirm the project actually shipped."
+};
+
+var RISKS = [
+  {id:'k1', text:'Finance may delay sign-off on the new process', sugProb:'med', sugImp:'high', why:"Sign-off delays are common when a process touches financial controls \u2014 moderate likelihood, but it can stall the whole roadmap if it hits, so the impact is high."},
+  {id:'k2', text:'Frontline staff resist using the new tool', sugProb:'high', sugImp:'med', why:"New tools reliably meet resistance from the people who have to change their habits \u2014 likely to happen, but coachable and recoverable, so impact is moderate."},
+  {id:'k3', text:'IT integration takes longer than expected', sugProb:'med', sugImp:'med', why:"Integration timelines slip often enough to expect some delay, and a moderate delay pushes the schedule without derailing the whole project."},
+  {id:'k4', text:'The key Sales stakeholder leaves mid-project', sugProb:'low', sugImp:'high', why:"Less likely to happen, but if your main Sales champion leaves, you lose engagement and momentum on one whole side of the handoff \u2014 high impact."},
+  {id:'k5', text:'Pilot clients give unclear or mixed feedback', sugProb:'med', sugImp:'low', why:"Reasonably likely with a small pilot group, but it's manageable \u2014 you can always extend the pilot or ask follow-up questions."}
+];
+var LEVEL_NUM = {low:1, med:2, high:3};
+var BAD_MITIGATION = ['monitor it','keep an eye','watch it','wait and see','see what happens','hope for the best','keep monitoring','just watch'];
+var MITIGATION_VERBS = ['create','assign','escalate','schedule','build','set up','get','add','buffer','plan','meet with','confirm','align','draft','lock in','pre-','review','establish','define','negotiate','back up','cross-train','loop in','flag','secure','document'];
+
+var PINGS = {
+  a1: [
+    "Sales Director pings: \u201cIs the website rebuild part of this or not? Need to tell my team.\u201d",
+    "Ops Manager pings: \u201cPlease don't let this become another CRM overhaul in disguise.\u201d",
+    "Leadership calendar hold just landed: kickoff review moved up 2 days."
+  ],
+  a2: [
+    "Finance Manager pings: \u201cAm I even in this project? No one's told me anything.\u201d",
+    "IT Support Lead pings: \u201cLet me know if you need anything from us \u2014 low bandwidth this month.\u201d",
+    "Frontline Ops chat: \u201cAnother new tool? We weren't asked about the last one either.\u201d"
+  ],
+  a3: [
+    "Finance pings: \u201cWe are NOT signing off after launch. Sequence this correctly.\u201d",
+    "Ops pings: \u201cCan we train staff before the pilot? Trying to save time.\u201d",
+    "Leadership: \u201cWhat are the 2-3 checkpoints I should actually watch for?\u201d"
+  ],
+  a4: [
+    "Sales Director mentions she's exploring an external offer. No further comment.",
+    "IT flags a legacy integration dependency nobody scoped yet.",
+    "A pilot client sends mixed feedback \u2014 unclear if it's a form issue or a training issue."
+  ]
+};
+
+/* =========================================================
+   STATE
+========================================================= */
+var state = {
+  screen: 'landing',
+  role: null,            // 'learner' | 'trainer'
+  learnerId: null, learnerEmail: null, learnerName: null,
+  activityStart: null, activityTimers: {a1:240, a2:240, a3:240, a4:240},
+  a1: { scoped:{}, statement:'' },
+  a2: { placement:{}, engagement:{} },
+  a3: { order: shuffle(ROADMAP_TASKS.map(function(t){return t.id;})), milestones:{} },
+  a4: { prob:{}, imp:{}, mitigations:{} },
+  reflection: '',
+  scores: null,
+  pingTimer: null, countdownTimer: null,
+  sessionPollTimer: null, dashPollTimer: null,
+  lastKnownSessionStatus: null,
+  _overtimeNotified:false
+};
+function shuffle(arr){ for(var i=arr.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=arr[i]; arr[i]=arr[j]; arr[j]=t; } return arr; }
+
+/* =========================================================
+   DOM HELPERS
+========================================================= */
+function el(tag, attrs, children){
+  var e = document.createElement(tag); attrs = attrs || {};
+  for(var k in attrs){
+    if(k==='class') e.setAttribute('class', attrs[k]);
+    else if(k==='html') e.innerHTML = attrs[k];
+    else if(k.indexOf('on')===0 && typeof attrs[k]==='function') e.addEventListener(k.slice(2), attrs[k]);
+    else if(attrs[k] === null || attrs[k] === undefined) { /* skip: no attribute set */ }
+    else e.setAttribute(k, attrs[k]);
+  }
+  (children||[]).forEach(function(c){ if(c) e.appendChild(typeof c==='string'?document.createTextNode(c):c); });
+  return e;
+}
+function fmtTime(sec){ sec = Math.max(0, Math.round(sec)); var m=Math.floor(sec/60), s=sec%60; return (m<10?'0':'')+m+':'+(s<10?'0':'')+s; }
+function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+function showToast(msg){
+  var wrap = document.getElementById('toastWrap');
+  var t = el('div',{class:'toast', html:msg});
+  wrap.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); }, 7000);
+  while(wrap.children.length > 3){ wrap.removeChild(wrap.firstChild); }
+}
+
+/* =========================================================
+   SHARED-STORAGE SESSION / LEARNER RECORD HELPERS
+========================================================= */
+async function getSession(){
+  var s = await Store.get(SESSION_KEY);
+  return s || { status:'waiting', startedAt:null, resetAt:null };
+}
+async function setSessionStatus(status){
+  var s = await getSession();
+  s.status = status;
+  if(status === 'active') s.startedAt = Date.now();
+  if(status === 'waiting') s.resetAt = Date.now();
+  await Store.set(SESSION_KEY, s);
+  return s;
+}
+async function saveLearnerRecord(patch){
+  if(!state.learnerId) return;
+  var key = LEARNER_PREFIX + state.learnerId;
+  var existing = await Store.get(key) || {};
+  var merged = Object.assign({
+    id: state.learnerId, name: state.learnerName, email: state.learnerEmail,
+    status:'waiting', progress:'waiting', score:null, responses:null,
+    startedAt: Date.now(), completedAt:null
+  }, existing, patch, { lastActive: Date.now() });
+  await Store.set(key, merged);
+  return merged;
+}
+async function getLearnerRecord(id){ return await Store.get(LEARNER_PREFIX + id); }
+async function listLearnerRecords(){
+  var keys = await Store.listKeys(LEARNER_PREFIX);
+  var records = [];
+  for(var i=0;i<keys.length;i++){
+    var rec = await Store.get(keys[i]);
+    if(rec) records.push(rec);
+  }
+  records.sort(function(a,b){ return (b.lastActive||0) - (a.lastActive||0); });
+  return records;
+}
+async function clearAllLearnerRecords(){
+  var keys = await Store.listKeys(LEARNER_PREFIX);
+  for(var i=0;i<keys.length;i++){ await Store.del(keys[i]); }
+}
+
+/* =========================================================
+   SCORING (unchanged logic from prior build)
+========================================================= */
+function scoreA1(){
+  var pts=0, correctCount=0;
+  SCOPE_ITEMS.forEach(function(it){ if(state.a1.scoped[it.id]===it.correct){ pts+=2; correctCount++; } });
+  var stmt = (state.a1.statement||'').toLowerCase().trim();
+  var stmtPts = 0;
+  var hasNumber=false, hasVerify=false, notVague=false;
+  if(stmt.length > 12){
+    hasNumber = /\d/.test(stmt);
+    if(hasNumber) stmtPts += 5;
+    hasVerify = VERIFY_WORDS.some(function(w){return stmt.indexOf(w)>-1;});
+    if(hasVerify) stmtPts += 5;
+    var isVague = VAGUE_PHRASES.some(function(p){ return stmt.indexOf(p)>-1 && stmt.length<60; });
+    notVague = !isVague && stmt.split(' ').length >= 6;
+    if(notVague) stmtPts += 3;
+  }
+  stmtPts = Math.min(13, stmtPts);
+  return { total: pts+stmtPts, max:25, sortCorrect:correctCount, sortMax:SCOPE_ITEMS.length, stmtPts:stmtPts,
+    stmtFlags:{ hasNumber:hasNumber, hasVerify:hasVerify, notVague:notVague, blank: stmt.length<=12 } };
+}
+function scoreA2(){
+  var placePts=0, placedCorrect=0;
+  STAKEHOLDERS.forEach(function(s){ if(state.a2.placement[s.id]===s.quadrant){ placePts+=3; placedCorrect++; } });
+  var engagePts=0, engageCorrect=0, usedQ={};
+  STAKEHOLDERS.forEach(function(s){ if(state.a2.placement[s.id]) usedQ[state.a2.placement[s.id]]=true; });
+  Object.keys(usedQ).forEach(function(q){
+    var chosen = state.a2.engagement[q];
+    if(chosen && chosen === QUADRANTS[q].approach){ engagePts+=2; engageCorrect++; }
+  });
+  return { total: placePts+engagePts, max:25, placedCorrect:placedCorrect, engageCorrect:engageCorrect };
+}
+function scoreA3(){
+  var order = state.a3.order, positionPts=0;
+  order.forEach(function(id, idx){
+    var task = ROADMAP_TASKS.filter(function(t){return t.id===id;})[0];
+    if(task && task.order === idx+1) positionPts += 2;
+  });
+  var perfect = positionPts === (ROADMAP_TASKS.length*2);
+  if(perfect) positionPts += 3;
+  positionPts = Math.min(15, positionPts);
+  var chosenMilestones = Object.keys(state.a3.milestones).filter(function(id){return state.a3.milestones[id];});
+  var correctMs = chosenMilestones.filter(function(id){return CORRECT_MILESTONES.indexOf(id)>-1;}).length;
+  var extra = chosenMilestones.filter(function(id){return CORRECT_MILESTONES.indexOf(id)===-1;}).length;
+  var msPts = correctMs*3;
+  if(correctMs===3 && extra===0) msPts += 1;
+  msPts = Math.min(10, msPts);
+  return { total: positionPts+msPts, max:25, positionPts:positionPts, msPts:msPts, correctMs:correctMs };
+}
+function riskSeverity(id){ var p=state.a4.prob[id], i=state.a4.imp[id]; if(!p||!i) return 0; return LEVEL_NUM[p]*LEVEL_NUM[i]; }
+function topTwoRisks(){
+  var rated = RISKS.filter(function(r){ return state.a4.prob[r.id] && state.a4.imp[r.id]; });
+  rated.sort(function(a,b){ return riskSeverity(b.id)-riskSeverity(a.id); });
+  return rated.slice(0,2).map(function(r){return r.id;});
+}
+function scoreA4(){
+  var combos = {};
+  RISKS.forEach(function(r){ var p=state.a4.prob[r.id], i=state.a4.imp[r.id]; if(p&&i) combos[p+'-'+i]=true; });
+  var distinct = Object.keys(combos).length;
+  var diffPts = distinct>=4?10:distinct===3?7:distinct===2?4:0;
+  var top2 = topTwoRisks(), mitPts=0, mitFeedback={};
+  top2.forEach(function(id){
+    var raw = state.a4.mitigations[id]||'';
+    var txt = raw.toLowerCase().trim(), pts=0;
+    var hasVerb=false, isBad=false, tooShort = txt.length<=15;
+    if(txt.length>15){
+      isBad = BAD_MITIGATION.some(function(b){ return txt.indexOf(b)>-1 && txt.length<40; });
+      if(!isBad){
+        pts += 4;
+        hasVerb = MITIGATION_VERBS.some(function(v){return txt.indexOf(v)>-1;});
+        if(hasVerb) pts += 3;
+        else if(txt.split(' ').length >= 8) pts += 2;
+      }
+    }
+    mitFeedback[id] = { tooShort:tooShort, isBad:isBad, hasVerb:hasVerb, earned: Math.min(7.5,pts) };
+    mitPts += Math.min(7.5, pts);
+  });
+  mitPts = Math.round(Math.min(15, mitPts));
+  return { total: diffPts+mitPts, max:25, diffPts:diffPts, mitPts:mitPts, distinct:distinct, top2:top2, mitFeedback:mitFeedback };
+}
+function computeAllScores(){
+  var s1=scoreA1(), s2=scoreA2(), s3=scoreA3(), s4=scoreA4();
+  var total = Math.round(s1.total+s2.total+s3.total+s4.total);
+  state.scores = { a1:s1, a2:s2, a3:s3, a4:s4, total: total, max:100, pass: total>=65 };
+  return state.scores;
+}
+
+/* =========================================================
+   BADGES & REMARKS
+========================================================= */
+function activityBadge(activityKey, score){
+  var pct = (score/25)*100;
+  if(pct >= 80) return { tier:'strong', label:'Strong', color:'teal' };
+  if(pct >= 52) return { tier:'solid', label:'Solid', color:'blue' };
+  return { tier:'needs', label:'Needs Work', color:'flare' };
+}
+var ACTIVITY_REMARKS = {
+  a1: {
+    strong: "Your scope calls were sharp and your success statement is something someone else could actually go check.",
+    solid: "Most of your scope calls landed. Tighten the success statement so it names a number and a way to verify it.",
+    needs: "A few scope calls need a second look, and the success statement needs a number plus a way to verify it \u2014 revisit the framework reminder."
+  },
+  a2: {
+    strong: "You read power and interest well and matched engagement approaches to match \u2014 this map would hold up with real leadership.",
+    solid: "Good instincts on most placements. Double-check any quadrant where your engagement approach didn't match the placement itself.",
+    needs: "Several placements need rethinking \u2014 remember, low power doesn't mean low attention. Revisit the Watch For note."
+  },
+  a3: {
+    strong: "Your sequence avoids the classic rework traps, and your milestones are the real decision gates leadership would want tracked.",
+    solid: "The overall order is mostly workable. Check the milestones \u2014 not every step is a checkpoint leadership needs to track.",
+    needs: "The sequence has some risky ordering \u2014 sign-off, testing, and training need to happen in the right order to avoid rework."
+  },
+  a4: {
+    strong: "You differentiated risk ratings honestly and wrote real, actionable mitigations \u2014 not just \u201cmonitor it.\u201d",
+    solid: "Good start on differentiating risk \u2014 make sure your mitigations name a concrete next step, not just watching and waiting.",
+    needs: "Try rating risks more honestly instead of defaulting to the same rating everywhere, and write mitigations that are real actions."
+  }
+};
+function overallBadge(total){
+  if(total >= 90) return { tier:'gold', label:'Kickoff Champion', color:'teal' };
+  if(total >= 75) return { tier:'silver', label:'Solid Foundation', color:'blue' };
+  if(total >= 65) return { tier:'bronze', label:'Kickoff-Ready', color:'flare' };
+  return { tier:'rework', label:'Needs Another Pass', color:'flare' };
+}
+var OVERALL_REMARKS = {
+  gold: "This is the kind of kickoff pack that walks into a leadership review and doesn't flinch. Scope is defensible, the right people are engaged the right way, the roadmap avoids rework, and the risks that matter have real plans behind them.",
+  silver: "A genuinely solid foundation \u2014 most of the fundamentals are in place. A few details would benefit from another pass before this goes in front of senior leadership.",
+  bronze: "You've got the shape of a real kickoff pack here, but there are gaps that would surface as real problems in week three. Worth another look at the lower-scoring sections below.",
+  rework: "This kickoff pack isn't ready yet \u2014 several of the fundamentals need real rework before Project Northstar should move forward. Use the breakdown below to see exactly where."
+};
+
+/* =========================================================
+   TIMERS / PINGS (learner activities)
+========================================================= */
+function startPings(activityKey){
+  stopPings();
+  var pool = PINGS[activityKey].slice(); shuffle(pool); var i=0;
+  state.pingTimer = setInterval(function(){ if(i<pool.length){ showToast(pool[i]); i++; } }, 26000 + Math.random()*8000);
+}
+function stopPings(){ if(state.pingTimer){ clearInterval(state.pingTimer); state.pingTimer=null; } document.getElementById('toastWrap').innerHTML=''; }
+function startCountdown(key){
+  if(state.countdownTimer) clearInterval(state.countdownTimer);
+  state.activityStart = Date.now();
+  var total = state.activityTimers[key];
+  state.countdownTimer = setInterval(function(){
+    var elapsed = (Date.now()-state.activityStart)/1000;
+    var remain = total - elapsed;
+    updateTimerConsole(remain, total);
+    if(remain <= -60 && !state._overtimeNotified){
+      state._overtimeNotified = true;
+      showToast("<b>Kickoff clock:</b> Running long on this step. A rough answer beats no answer \u2014 keep moving.");
+    }
+  }, 1000);
+}
+function stopCountdown(){ if(state.countdownTimer){ clearInterval(state.countdownTimer); state.countdownTimer=null; } state._overtimeNotified=false; }
+function updateTimerConsole(remain, total){
+  var consoleEl = document.getElementById('timerConsole'); if(!consoleEl) return;
+  var pct = clamp((remain/total)*100, 0, 100);
+  var dial = consoleEl.querySelector('.timer-dial');
+  var valEl = consoleEl.querySelector('.tt-value');
+  valEl.textContent = remain>=0 ? fmtTime(remain) : ('+'+fmtTime(Math.abs(remain)));
+  consoleEl.classList.remove('warn','hot');
+  if(remain < 0){ consoleEl.classList.add('hot'); dial.style.background = '#F2541D'; }
+  else if(pct < 35){ consoleEl.classList.add('warn'); dial.style.background = 'conic-gradient(#F2541D '+pct+'%, rgba(255,255,255,0.14) 0)'; }
+  else { dial.style.background = 'conic-gradient(#2E9D91 '+pct+'%, rgba(255,255,255,0.14) 0)'; }
+}
+
+/* =========================================================
+   SHELL / LAYOUT
+========================================================= */
+function screenIndex(){ return ['landing','waiting','a1','a2','a3','a4','debrief'].indexOf(state.screen); }
+
+function topBar(rightNode){
+  var kids = [
+    el('div',{class:'brand'},[
+      el('img',{class:'brand-logo', src:LOGO_SRC, alt:'Learners Point'}),
+      el('span',{class:'brand-sub'},['Project Management \u2014 Basic'])
+    ])
+  ];
+  if(rightNode) kids.push(rightNode);
+  return el('div',{class:'topbar'}, kids);
+}
+
+function renderShell(bodyNode, opts, rightBarNode){
+  opts = opts || {};
+  var app = document.getElementById('app');
+  app.innerHTML = '';
+  app.appendChild(topBar(rightBarNode));
+  var shell = el('div',{class:'shell'});
+  if(opts.title || opts.eyebrow || opts.desc || opts.showTimer){
+    var head = el('div',{class:'shell-head'});
+    head.appendChild(el('div',{},[
+      el('span',{class:'eyebrow'},[opts.eyebrow||'']),
+      el('h1',{},[opts.title||'']),
+      el('p',{},[opts.desc||''])
+    ]));
+    if(opts.showTimer){
+      head.appendChild(el('div',{class:'timer-console', id:'timerConsole'},[
+        el('div',{class:'timer-dial'}),
+        el('div',{class:'timer-text'},[ el('div',{class:'tt-label'},['Time on step']), el('div',{class:'tt-value'},['04:00']) ])
+      ]));
+    }
+    shell.appendChild(head);
+  }
+  shell.appendChild(bodyNode);
+  app.appendChild(shell);
+}
+function renderTwoPane(mainNode, sideNode){
+  return el('div',{class:'pane-grid'},[ el('div',{class:'pane-main'},[mainNode]), el('div',{class:'pane-side'},[sideNode]) ]);
+}
+function progressDots(activeIdx){
+  var labels = ['Charter','Stakeholders','Roadmap','Risk Radar'];
+  return el('div',{class:'side-card'},[
+    el('h3',{},['Kickoff Pack Progress']),
+    el('div',{class:'progress-dots'}, labels.map(function(l,i){
+      var cls = 'pdot' + (i===activeIdx?' active':(i<activeIdx?' done':''));
+      return el('span',{class:cls, title:l});
+    }))
+  ]);
+}
+function appendActions(backFn, backLabel, nextFn, nextLabel, nextDisabled){
+  var mainPane = document.querySelector('.pane-main');
+  var nextBtnAttrs = {class:'btn accent', onclick:nextFn};
+  if(nextDisabled) nextBtnAttrs.disabled = 'disabled';
+  var row = el('div',{class:'actions-row'},[
+    backFn ? el('button',{class:'btn ghost', onclick:backFn},[backLabel]) : el('span',{}),
+    el('button', nextBtnAttrs, [nextLabel])
+  ]);
+  mainPane.appendChild(row);
+}
+
+/* =========================================================
+   SCREEN: LANDING (dual login)
+========================================================= */
+function renderLanding(){
+  stopAllPolling();
+  var learnerErr, trainerErr;
+
+  var learnerNameInput = el('input',{type:'text', id:'learnerName', placeholder:'Your full name', autocomplete:'name'});
+  var learnerEmailInput = el('input',{type:'email', id:'learnerEmail', placeholder:'you@company.com', autocomplete:'username'});
+  learnerErr = el('div',{class:'field-err', id:'learnerErr'},['Enter your name and a valid email address.']);
+
+  var trainerCodeInput = el('input',{type:'password', id:'trainerCodeInput', placeholder:'Enter access code', autocomplete:'off', inputmode:'numeric'});
+  trainerErr = el('div',{class:'field-err', id:'trainerErr'},['Incorrect access code.']);
+
+  function submitLearner(){
+    var name = learnerNameInput.value.trim();
+    var email = learnerEmailInput.value.trim();
+    if(!name || !isValidEmail(email)){ learnerErr.classList.add('show'); return; }
+    learnerErr.classList.remove('show');
+    loginLearner(name, email);
+  }
+  function submitTrainer(){
+    var code = trainerCodeInput.value.trim();
+    if(code !== TRAINER_CODE){ trainerErr.classList.add('show'); return; }
+    trainerErr.classList.remove('show');
+    state.role = 'trainer';
+    goTo('trainerDashboard');
+  }
+  learnerEmailInput.addEventListener('keydown', function(e){ if(e.key==='Enter') submitLearner(); });
+  trainerCodeInput.addEventListener('keydown', function(e){ if(e.key==='Enter') submitTrainer(); });
+
+  var body = el('div',{},[
+    el('div',{class:'landing-hero'},[
+      el('span',{class:'eyebrow'},['Solace Business Services \u00b7 New Project Lead Briefing']),
+      el('h1',{},['Project Northstar: The Launch Challenge']),
+      el('p',{},['A live, trainer-paced simulation. Sign in with the role that applies to you.'])
+    ]),
+    el('div',{class:'login-grid'},[
+      el('div',{class:'login-pane learner'},[
+        el('div',{class:'lp-icon'},['L']),
+        el('h2',{},['Learner Login']),
+        el('p',{class:'lp-sub'},['Enter your name and email to join the session. No account setup needed.']),
+        el('div',{class:'field'},[el('label',{},['Full Name']), learnerNameInput]),
+        el('div',{class:'field'},[el('label',{},['Email Address']), learnerEmailInput]),
+        learnerErr,
+        el('button',{class:'btn accent block', onclick:submitLearner},['Enter Waiting Room']),
+        el('div',{class:'login-foot'},['You\u2019ll land in a waiting room until your trainer starts the session.'])
+      ]),
+      el('div',{class:'login-pane trainer'},[
+        el('div',{class:'lp-icon'},['T']),
+        el('h2',{},['Trainer / Admin Login']),
+        el('p',{class:'lp-sub'},['Restricted to authorized facilitators. Controls the live session for all learners.']),
+        el('div',{class:'field'},[el('label',{},['Access Code']), trainerCodeInput]),
+        trainerErr,
+        el('button',{class:'btn teal block', onclick:submitTrainer},['Log In to Dashboard'])
+      ])
+    ])
+  ]);
+
+  var app = document.getElementById('app');
+  app.innerHTML = '';
+  app.appendChild(topBar());
+  app.appendChild(el('div',{class:'shell'},[body]));
+}
+
+async function loginLearner(name, email){
+  state.role = 'learner';
+  state.learnerEmail = email;
+  state.learnerId = sanitizeId(email);
+  state.learnerName = name;
+
+  var existing = await getLearnerRecord(state.learnerId);
+  if(existing && existing.status === 'completed'){
+    state.scores = existing.responses ? existing.responses.scores : state.scores;
+    goTo('alreadyCompleted', existing);
+    return;
+  }
+  await saveLearnerRecord({ status: existing && existing.status === 'in_progress' ? 'in_progress' : 'waiting', progress: existing ? existing.progress : 'waiting' });
+  goTo('waiting');
+}
+
+/* =========================================================
+   SCREEN: ALREADY COMPLETED (returning learner)
+========================================================= */
+function renderAlreadyCompleted(record){
+  var body = el('div',{class:'wait-wrap'},[
+    el('span',{class:'wait-badge live'},[el('span',{class:'wb-dot'}), 'Session already completed']),
+    el('div',{class:'wait-title'},['Welcome back, '+state.learnerName]),
+    el('p',{class:'wait-overview'},['You already submitted this Kickoff Pack. Your trainer can see your results on the dashboard. If you believe this is a mistake, ask your trainer to reset the session.']),
+    el('div',{class:'wait-meta-row'},[
+      el('div',{class:'wait-meta'},['Score', el('b',{},[String((record.score!=null?record.score:'\u2014'))+' / 100'])])
+    ]),
+    el('div',{class:'actions-row'},[
+      el('span',{}),
+      el('button',{class:'btn ghost', onclick:function(){ goTo('landing'); }},['Log Out'])
+    ])
+  ]);
+  renderShell(body, {});
+}
+
+/* =========================================================
+   SCREEN: WAITING PAGE
+========================================================= */
+function renderWaiting(){
+  var body = el('div',{class:'wait-wrap'},[]);
+
+  var badge = el('span',{class:'wait-badge', id:'waitBadge'},[el('span',{class:'wb-dot'}),'Waiting Room']);
+  body.appendChild(badge);
+  body.appendChild(el('div',{class:'wait-title'},['Hi '+state.learnerName+' \u2014 welcome to Project Northstar']));
+  body.appendChild(el('p',{class:'wait-overview'},[
+    "You've just been named Project Lead for Project Northstar at Solace Business Services. Leadership wants a faster, more reliable way to onboard new clients. You have four weeks before the kickoff meeting. What you build in this session decides whether Northstar starts strong \u2014 or starts confused."
+  ]));
+
+  body.appendChild(el('div',{class:'wait-grid'},[
+    el('div',{class:'wait-card'},[
+      el('h4',{},['Learning Objectives']),
+      el('ul',{},[
+        el('li',{},['Set clear scope boundaries and a measurable definition of success']),
+        el('li',{},['Map stakeholders by power and interest, and choose how to engage each']),
+        el('li',{},['Sequence project tasks into a realistic roadmap with milestones']),
+        el('li',{},['Spot and prioritize risks before they become problems'])
+      ])
+    ]),
+    el('div',{class:'wait-card'},[
+      el('h4',{},['Instructions & Participation Guidelines']),
+      el('ul',{},[
+        el('li',{},['Complete all 4 activities in order: Charter, Stakeholders, Roadmap, Risk Radar']),
+        el('li',{},['Work at your own device \u2014 this is an individual simulation']),
+        el('li',{},['Expect mid-activity pressure pings from stakeholders \u2014 handle them and keep moving']),
+        el('li',{},['A rushed but complete answer beats a stalled one'])
+      ])
+    ]),
+    el('div',{class:'wait-card'},[
+      el('h4',{},['Rules & Expectations']),
+      el('ul',{},[
+        el('li',{},['No outside research \u2014 use your own judgment']),
+        el('li',{},['Answers are scored automatically once you submit']),
+        el('li',{},['You cannot go back and change a previous activity after finishing it']),
+        el('li',{},['Stay on this page until your trainer starts the session'])
+      ])
+    ]),
+    el('div',{class:'wait-card'},[
+      el('h4',{},['Important Notes']),
+      el('ul',{},[
+        el('li',{},['Your progress and score are visible to your trainer in real time']),
+        el('li',{},['If the trainer resets the session, you\u2019ll be returned here automatically']),
+        el('li',{},['Estimated duration: 15\u201320 minutes once the session starts'])
+      ])
+    ])
+  ]));
+
+  body.appendChild(el('div',{class:'wait-meta-row'},[
+    el('div',{class:'wait-meta'},['Estimated Duration', el('b',{},['15\u201320 min'])]),
+    el('div',{class:'wait-meta'},['Activities', el('b',{},['4'])]),
+    el('div',{class:'wait-meta'},['Format', el('b',{},['Individual'])])
+  ]));
+
+  var ctaMsg = el('div',{class:'wc-msg', id:'ctaMsg'},['Waiting for trainer approval. The simulation will begin once the trainer starts the session.']);
+  var startBtn = el('button',{class:'btn accent wc-btn', id:'startSimBtn', disabled:'disabled', onclick:function(){
+    if(startBtn.disabled) return;
+    saveLearnerRecord({ status:'in_progress', progress:'a1' });
+    goTo('a1');
+  }},['Start Simulation']);
+  body.appendChild(el('div',{class:'wait-cta'},[ctaMsg, el('div',{},[startBtn])]));
+
+  body.appendChild(el('div',{class:'actions-row'},[
+    el('span',{}),
+    el('button',{class:'btn ghost sm', onclick:function(){ goTo('landing'); }},['Log Out'])
+  ]));
+
+  renderShell(body, {});
+  pollWaitingSession();
+}
+
+async function pollWaitingSession(){
+  stopSessionPoll();
+  async function check(){
+    var s = await getSession();
+    var badge = document.getElementById('waitBadge');
+    var msg = document.getElementById('ctaMsg');
+    var startBtn = document.getElementById('startSimBtn');
+    if(!badge || !startBtn) return;
+    if(s.status === 'active'){
+      badge.classList.add('live');
+      badge.innerHTML = '<span class="wb-dot"></span>Session Live';
+      msg.classList.add('ready');
+      msg.textContent = 'Your trainer has started the session. You\u2019re clear to begin.';
+      startBtn.removeAttribute('disabled');
+    } else {
+      badge.classList.remove('live');
+      badge.innerHTML = '<span class="wb-dot"></span>Waiting Room';
+      msg.classList.remove('ready');
+      msg.textContent = 'Waiting for trainer approval. The simulation will begin once the trainer starts the session.';
+      startBtn.setAttribute('disabled','disabled');
+    }
+  }
+  await check();
+  state.sessionPollTimer = setInterval(check, 2500);
+}
+function stopSessionPoll(){ if(state.sessionPollTimer){ clearInterval(state.sessionPollTimer); state.sessionPollTimer=null; } }
+
+/* =========================================================
+   RESET DETECTION DURING ACTIVITIES
+========================================================= */
+function watchForReset(){
+  stopSessionPoll();
+  state.sessionPollTimer = setInterval(async function(){
+    var s = await getSession();
+    if(s.status === 'waiting' && state.screen !== 'waiting' && state.screen !== 'landing' && state.screen !== 'debrief'){
+      showInterrupt();
+    }
+  }, 4000);
+}
+function showInterrupt(){
+  stopAllPolling(); stopCountdown(); stopPings();
+  var root = document.getElementById('interruptRoot');
+  root.innerHTML = '';
+  root.appendChild(el('div',{class:'interrupt-veil'},[
+    el('div',{class:'iv-box'},[
+      el('h3',{},['Session Reset by Trainer']),
+      el('p',{},['Your trainer has reset this session. Returning you to the waiting room\u2026'])
+    ])
+  ]));
+  setTimeout(async function(){
+    root.innerHTML = '';
+    resetLocalActivityState();
+    await saveLearnerRecord({ status:'waiting', progress:'waiting' });
+    goTo('waiting');
+  }, 2600);
+}
+function resetLocalActivityState(){
+  state.a1 = { scoped:{}, statement:'' };
+  state.a2 = { placement:{}, engagement:{} };
+  state.a3 = { order: shuffle(ROADMAP_TASKS.map(function(t){return t.id;})), milestones:{} };
+  state.a4 = { prob:{}, imp:{}, mitigations:{} };
+  state.reflection = ''; state.scores = null; state.submitted = false;
+}
+
+/* =========================================================
+   ACTIVITY 1
+========================================================= */
+function renderA1(){
+  var main = el('div',{});
+  main.appendChild(el('div',{class:'inbox-strip'},[ el('span',{class:'inbox-dot'}), el('span',{},['Leadership kickoff email just landed \u2014 6 ideas, no clear lines. Sort them before you reply.']) ]));
+  var pool = el('div',{class:'card-pool', id:'pool1'});
+  var colIn = el('div',{class:'drop-col in', id:'colIn'},[el('h4',{},['\u2713 In Scope']), el('div',{class:'dc-cards', id:'cardsIn'})]);
+  var colOut = el('div',{class:'drop-col out', id:'colOut'},[el('h4',{},['\u2715 Out of Scope']), el('div',{class:'dc-cards', id:'cardsOut'})]);
+  main.appendChild(pool);
+  main.appendChild(el('div',{class:'drop-cols'},[colIn, colOut]));
+  main.appendChild(el('div',{class:'success-box'},[
+    el('label',{},['Complete: "We\u2019ll know Project Northstar succeeded when ___."']),
+    el('textarea',{id:'stmtInput', placeholder:'Be specific enough that someone else could check it.'}),
+    el('div',{class:'success-hint'},['Vague ("it goes well") won\u2019t hold up in front of leadership. Specific, checkable criteria will.'])
+  ]));
+
+  var side = el('div',{},[
+    progressDots(0),
+    el('div',{class:'side-card'},[el('h3',{},['Objective']), el('p',{},['Set the boundaries of Project Northstar and define what success actually looks like.'])]),
+    el('div',{class:'side-card'},[el('h3',{},['Framework Reminder']), el('p',{},['A good charter draws a line around the work and defines success in a way people can actually check.'])]),
+    el('div',{class:'side-card'},[el('h3',{},['What\u2019s Being Watched']), el('ul',{},[ el('li',{},['Are in/out decisions defensible?']), el('li',{},['Does the success line include a number and a way to verify it?']) ])])
+  ]);
+
+  renderShell(renderTwoPane(main, side), { eyebrow:'Activity 1 of 4', title:'Build the Charter', desc:'Sort each item into what Northstar should cover \u2014 and what it shouldn\u2019t.', showTimer:true });
+
+  layoutA1Cards();
+  document.getElementById('stmtInput').value = state.a1.statement;
+  document.getElementById('stmtInput').addEventListener('input', function(e){ state.a1.statement = e.target.value; });
+
+  appendActions(null, '', function(){ saveLearnerRecord({ progress:'a2' }); goTo('a1review'); }, 'Review My Charter \u2192');
+  startCountdown('a1'); startPings('a1'); watchForReset();
+  saveLearnerRecord({ status:'in_progress', progress:'a1' });
+}
+function layoutA1Cards(){
+  var pool = document.getElementById('pool1'), cin = document.getElementById('cardsIn'), cout = document.getElementById('cardsOut');
+  pool.innerHTML=''; cin.innerHTML=''; cout.innerHTML='';
+  SCOPE_ITEMS.forEach(function(it){
+    var card = el('div',{class:'item-card', draggable:'true', 'data-id':it.id, id:'card-'+it.id},[it.text]);
+    card.addEventListener('dragstart', function(e){ card.classList.add('dragging'); e.dataTransfer.setData('text/plain', it.id); });
+    card.addEventListener('dragend', function(){ card.classList.remove('dragging'); });
+    var target = state.a1.scoped[it.id]==='in'?cin: state.a1.scoped[it.id]==='out'?cout: pool;
+    target.appendChild(card);
+  });
+  [ {node:pool,key:null}, {node:cin,key:'in'}, {node:cout,key:'out'} ].forEach(function(z){
+    var container = z.node.parentElement && z.node.parentElement.classList.contains('drop-col') ? z.node.parentElement : z.node;
+    container.addEventListener('dragover', function(e){ e.preventDefault(); container.classList.add('over'); });
+    container.addEventListener('dragleave', function(){ container.classList.remove('over'); });
+    container.addEventListener('drop', function(e){
+      e.preventDefault(); container.classList.remove('over');
+      var id = e.dataTransfer.getData('text/plain');
+      state.a1.scoped[id] = z.key;
+      layoutA1Cards();
+    });
+  });
+}
+
+/* =========================================================
+   ACTIVITY 2
+========================================================= */
+function renderA2(){
+  var main = el('div',{});
+  var pool = el('div',{class:'chip-pool', id:'chipPool'});
+  var grid = el('div',{class:'quad-grid'});
+  var cellTL = el('div',{class:'quad-cell', id:'cell-HL'},[el('div',{class:'qc-title'},['High Power \u00b7 Low Interest']), el('div',{class:'qc-chips'})]);
+  var cellTR = el('div',{class:'quad-cell', id:'cell-HH'},[el('div',{class:'qc-title'},['High Power \u00b7 High Interest']), el('div',{class:'qc-chips'})]);
+  var cellBL = el('div',{class:'quad-cell', id:'cell-LL'},[el('div',{class:'qc-title'},['Low Power \u00b7 Low Interest']), el('div',{class:'qc-chips'})]);
+  var cellBR = el('div',{class:'quad-cell', id:'cell-LH'},[el('div',{class:'qc-title'},['Low Power \u00b7 High Interest']), el('div',{class:'qc-chips'})]);
+  [cellTL,cellTR,cellBL,cellBR].forEach(function(c){ grid.appendChild(c); });
+  main.appendChild(el('p',{style:'font-size:12.5px;color:#666;margin:0 0 14px;'},['Drag each name into a quadrant, then choose how you\u2019ll engage that quadrant.']));
+  main.appendChild(el('div',{class:'quad-wrap'},[pool, grid]));
+
+  var side = el('div',{},[
+    progressDots(1),
+    el('div',{class:'side-card'},[el('h3',{},['Objective']), el('p',{},['Place each stakeholder by power and interest, then decide how to engage them.'])]),
+    el('div',{class:'side-card'},[el('h3',{},['Engagement Options']), el('ul',{},[
+      el('li',{},[el('b',{},['Manage Closely']),' \u2014 high power, high interest']),
+      el('li',{},[el('b',{},['Keep Satisfied']),' \u2014 high power, low interest']),
+      el('li',{},[el('b',{},['Keep Informed']),' \u2014 low power, high interest']),
+      el('li',{},[el('b',{},['Monitor']),' \u2014 low power, low interest'])
+    ])]),
+    el('div',{class:'side-card'},[el('h3',{},['Watch For']), el('p',{},['Low power \u2260 unimportant. Frontline staff often carry the highest risk of quiet resistance.'])])
+  ]);
+
+  renderShell(renderTwoPane(main, side), { eyebrow:'Activity 2 of 4', title:'Map the Players', desc:'Place each stakeholder, then choose a distinct engagement approach per quadrant.', showTimer:true });
+
+  layoutA2();
+  appendActions(function(){ goTo('a1'); }, 'Back', function(){ saveLearnerRecord({ progress:'a3' }); goTo('a2review'); }, 'Review My Stakeholder Map \u2192');
+  startCountdown('a2'); startPings('a2'); watchForReset();
+  saveLearnerRecord({ progress:'a2' });
+}
+function layoutA2(){
+  var pool = document.getElementById('chipPool'); pool.innerHTML='';
+  ['HH','HL','LH','LL'].forEach(function(q){ document.querySelector('#cell-'+q+' .qc-chips').innerHTML=''; });
+  STAKEHOLDERS.forEach(function(s){
+    var chip = el('span',{class:'stake-chip', draggable:'true', id:'chip-'+s.id},[s.name]);
+    chip.addEventListener('dragstart', function(e){ chip.classList.add('dragging'); e.dataTransfer.setData('text/plain', s.id); });
+    chip.addEventListener('dragend', function(){ chip.classList.remove('dragging'); });
+    var q = state.a2.placement[s.id];
+    var target = q ? document.querySelector('#cell-'+q+' .qc-chips') : pool;
+    target.appendChild(chip);
+  });
+  pool.addEventListener('dragover', function(e){ e.preventDefault(); });
+  pool.addEventListener('drop', function(e){ e.preventDefault(); var id = e.dataTransfer.getData('text/plain'); delete state.a2.placement[id]; layoutA2(); });
+  ['HH','HL','LH','LL'].forEach(function(q){
+    var cell = document.getElementById('cell-'+q);
+    cell.addEventListener('dragover', function(e){ e.preventDefault(); cell.classList.add('over'); });
+    cell.addEventListener('dragleave', function(){ cell.classList.remove('over'); });
+    cell.addEventListener('drop', function(e){
+      e.preventDefault(); cell.classList.remove('over');
+      var id = e.dataTransfer.getData('text/plain');
+      state.a2.placement[id] = q; layoutA2(); refreshA2Selects();
+    });
+  });
+  refreshA2Selects();
+}
+function refreshA2Selects(){
+  var used = {};
+  STAKEHOLDERS.forEach(function(s){ if(state.a2.placement[s.id]) used[state.a2.placement[s.id]]=true; });
+  ['HH','HL','LH','LL'].forEach(function(q){
+    var cell = document.getElementById('cell-'+q);
+    var existing = cell.querySelector('select'); if(existing) existing.remove();
+    if(used[q]){
+      var sel = el('select',{id:'sel-'+q});
+      sel.appendChild(el('option',{value:''},['Choose approach\u2026']));
+      Object.keys(APPROACH_LABELS).forEach(function(key){
+        var opt = el('option',{value:key},[APPROACH_LABELS[key]]);
+        if(state.a2.engagement[q]===key) opt.setAttribute('selected','selected');
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', function(e){ state.a2.engagement[q]=e.target.value; });
+      cell.appendChild(sel);
+    }
+  });
+}
+
+/* =========================================================
+   ACTIVITY 3
+========================================================= */
+function renderA3(){
+  var main = el('div',{});
+  main.appendChild(el('p',{style:'font-size:12.5px;color:#666;margin:0 0 14px;'},['Drag to reorder these six tasks, then star exactly 3 as milestones leadership should track.']));
+  main.appendChild(el('div',{class:'seq-list', id:'seqList'}));
+  main.appendChild(el('div',{class:'milestone-count', id:'msCount'}));
+
+  var side = el('div',{},[
+    progressDots(2),
+    el('div',{class:'side-card'},[el('h3',{},['Objective']), el('p',{},['Put the work in the right order and flag the checkpoints that matter.'])]),
+    el('div',{class:'side-card'},[el('h3',{},['Framework Reminder']), el('p',{},['A roadmap isn\u2019t just a task list \u2014 it\u2019s the right order, with checkpoints, that keeps a project moving without costly rework.'])]),
+    el('div',{class:'side-card'},[el('h3',{},['Watch For']), el('p',{},['Training or launch steps sequenced before testing or sign-off are exactly the errors that cause rework.'])])
+  ]);
+
+  renderShell(renderTwoPane(main, side), { eyebrow:'Activity 3 of 4', title:'Build the Roadmap', desc:'Sequence the tasks, then flag exactly 3 milestones.', showTimer:true });
+
+  layoutA3();
+  appendActions(function(){ goTo('a2'); }, 'Back', function(){ saveLearnerRecord({ progress:'a4' }); goTo('a3review'); }, 'Review My Roadmap \u2192');
+  startCountdown('a3'); startPings('a3'); watchForReset();
+  saveLearnerRecord({ progress:'a3' });
+}
+function layoutA3(){
+  var list = document.getElementById('seqList'); list.innerHTML='';
+  state.a3.order.forEach(function(id, idx){
+    var task = ROADMAP_TASKS.filter(function(t){return t.id===id;})[0];
+    var starred = !!state.a3.milestones[id];
+    var row = el('div',{class:'seq-item', draggable:'true', id:'seq-'+id, 'data-id':id},[
+      el('span',{class:'seq-idx'},[String(idx+1)]),
+      el('span',{class:'seq-text'},[task.text]),
+      el('button',{class:'star-btn'+(starred?' starred':''), type:'button', onclick:function(){
+        var chosen = Object.keys(state.a3.milestones).filter(function(k){return state.a3.milestones[k];});
+        if(!starred && chosen.length>=3){ showToast('Only 3 milestones \u2014 unstar one first.'); return; }
+        state.a3.milestones[id] = !starred; layoutA3();
+      }},[starred ? '\u2605 Milestone' : '\u2606 Flag'])
+    ]);
+    row.addEventListener('dragstart', function(e){ row.classList.add('dragging'); e.dataTransfer.setData('text/plain', id); });
+    row.addEventListener('dragend', function(){ row.classList.remove('dragging'); });
+    row.addEventListener('dragover', function(e){ e.preventDefault(); });
+    row.addEventListener('drop', function(e){
+      e.preventDefault();
+      var draggedId = e.dataTransfer.getData('text/plain');
+      var fromIdx = state.a3.order.indexOf(draggedId), toIdx = state.a3.order.indexOf(id);
+      state.a3.order.splice(fromIdx,1); state.a3.order.splice(toIdx,0,draggedId);
+      layoutA3();
+    });
+    list.appendChild(row);
+  });
+  var chosenCount = Object.keys(state.a3.milestones).filter(function(k){return state.a3.milestones[k];}).length;
+  document.getElementById('msCount').textContent = chosenCount + ' / 3 milestones flagged';
+}
+
+/* =========================================================
+   ACTIVITY 4
+========================================================= */
+function renderA4(){
+  var main = el('div',{});
+  var layout = el('div',{class:'risk-layout'});
+  var listWrap = el('div',{class:'risk-list', id:'riskList'});
+  var matrixWrap = el('div',{class:'matrix-box'},[ el('div',{class:'matrix-svg-wrap'},[svgMatrix()]), el('div',{class:'matrix-caption'},['Live probability \u00d7 impact plot']) ]);
+  layout.appendChild(listWrap); layout.appendChild(matrixWrap);
+  main.appendChild(layout);
+  main.appendChild(el('div',{class:'mitigation-block', id:'mitBlock'}));
+
+  var side = el('div',{},[
+    progressDots(3),
+    el('div',{class:'side-card'},[el('h3',{},['Objective']), el('p',{},['Rate each risk by probability and impact, then act on the two that matter most.'])]),
+    el('div',{class:'side-card'},[el('h3',{},['Framework Reminder']), el('p',{},['Not every risk deserves equal attention. Probability \u00d7 impact tells you where to spend limited time first.'])]),
+    el('div',{class:'side-card', id:'emoCard'},[ el('h3',{},['Program Pressure']), el('p',{},['Rises as higher-severity risks stack up unaddressed.']), el('div',{class:'emo-meter'},[el('div',{class:'emo-fill', id:'emoFill'})]) ])
+  ]);
+
+  renderShell(renderTwoPane(main, side), { eyebrow:'Activity 4 of 4', title:'Risk Radar', desc:'Rate each risk, then write mitigations for your two highest priorities.', showTimer:true });
+
+  layoutA4();
+  appendActions(function(){ goTo('a3'); }, 'Back', function(){ goTo('a4review'); }, 'Review My Risk Ratings \u2192');
+  startCountdown('a4'); startPings('a4'); watchForReset();
+  saveLearnerRecord({ progress:'a4' });
+}
+function svgMatrix(){
+  var ns='http://www.w3.org/2000/svg';
+  var svg = document.createElementNS(ns,'svg'); svg.setAttribute('viewBox','0 0 200 200'); svg.setAttribute('width','100%'); svg.setAttribute('id','riskMatrixSvg');
+  var bg = document.createElementNS(ns,'rect'); bg.setAttribute('x','10'); bg.setAttribute('y','10'); bg.setAttribute('width','180'); bg.setAttribute('height','180'); bg.setAttribute('fill','#fdfdfb'); bg.setAttribute('stroke','#eae8e0'); svg.appendChild(bg);
+  for(var i=1;i<3;i++){
+    var vline = document.createElementNS(ns,'line'); vline.setAttribute('x1',10+i*60); vline.setAttribute('x2',10+i*60); vline.setAttribute('y1','10'); vline.setAttribute('y2','190'); vline.setAttribute('stroke','#eae8e0'); svg.appendChild(vline);
+    var hline = document.createElementNS(ns,'line'); hline.setAttribute('y1',10+i*60); hline.setAttribute('y2',10+i*60); hline.setAttribute('x1','10'); hline.setAttribute('x2','190'); hline.setAttribute('stroke','#eae8e0'); svg.appendChild(hline);
+  }
+  var axisX = document.createElementNS(ns,'text'); axisX.setAttribute('x','100'); axisX.setAttribute('y','198'); axisX.setAttribute('font-size','7'); axisX.setAttribute('text-anchor','middle'); axisX.setAttribute('fill','#999'); axisX.textContent='Probability \u2192'; svg.appendChild(axisX);
+  var axisY = document.createElementNS(ns,'text'); axisY.setAttribute('x','-100'); axisY.setAttribute('y','9'); axisY.setAttribute('font-size','7'); axisY.setAttribute('text-anchor','middle'); axisY.setAttribute('fill','#999'); axisY.setAttribute('transform','rotate(-90)'); axisY.textContent='Impact \u2192'; svg.appendChild(axisY);
+  return svg;
+}
+function levelToCoord(level){ if(level==='low') return 45; if(level==='med') return 100; if(level==='high') return 155; return null; }
+function refreshMatrixDots(){
+  var svg = document.getElementById('riskMatrixSvg'); if(!svg) return;
+  var existing = svg.querySelectorAll('.risk-dot, .risk-dot-label'); existing.forEach(function(n){ n.parentNode.removeChild(n); });
+  var ns='http://www.w3.org/2000/svg';
+  RISKS.forEach(function(r, idx){
+    var p = state.a4.prob[r.id], i = state.a4.imp[r.id]; if(!p||!i) return;
+    var cx = levelToCoord(p), cy = 200 - levelToCoord(i);
+    var dot = document.createElementNS(ns,'circle'); dot.setAttribute('cx',cx); dot.setAttribute('cy',cy); dot.setAttribute('r','7');
+    var sev = LEVEL_NUM[p]*LEVEL_NUM[i];
+    var color = sev>=6?'#F2541D':sev>=3?'#4F71F2':'#2E9D91';
+    dot.setAttribute('fill', color); dot.setAttribute('fill-opacity','0.85'); dot.setAttribute('class','risk-dot'); svg.appendChild(dot);
+    var label = document.createElementNS(ns,'text'); label.setAttribute('x',cx); label.setAttribute('y',cy-10); label.setAttribute('font-size','7'); label.setAttribute('text-anchor','middle'); label.setAttribute('fill','#333'); label.setAttribute('class','risk-dot-label'); label.textContent='R'+(idx+1); svg.appendChild(label);
+  });
+}
+function layoutA4(){
+  var listWrap = document.getElementById('riskList'); listWrap.innerHTML='';
+  RISKS.forEach(function(r, idx){
+    listWrap.appendChild(el('div',{class:'risk-card'},[
+      el('div',{class:'rc-text'},['R'+(idx+1)+'. '+r.text]),
+      el('div',{class:'rc-row'},[ el('span',{},['Probability:']), segControl('prob', r.id), el('span',{},['Impact:']), segControl('imp', r.id) ])
+    ]));
+  });
+  refreshMatrixDots(); refreshMitigationBlock(); refreshEmoMeter();
+}
+function segControl(kind, riskId){
+  var levels = [['low','Low'],['med','Med'],['high','High']];
+  var seg = el('div',{class:'seg'});
+  levels.forEach(function(lv){
+    var cur = kind==='prob' ? state.a4.prob[riskId] : state.a4.imp[riskId];
+    var btn = el('button',{type:'button', class:'on-'+lv[0]+(cur===lv[0]?' active':'')},[lv[1]]);
+    btn.addEventListener('click', function(){
+      if(kind==='prob') state.a4.prob[riskId]=lv[0]; else state.a4.imp[riskId]=lv[0];
+      layoutA4();
+    });
+    seg.appendChild(btn);
+  });
+  return seg;
+}
+function refreshMitigationBlock(){
+  var block = document.getElementById('mitBlock'); if(!block) return;
+  block.innerHTML = '';
+  var top2 = topTwoRisks();
+  if(top2.length < 2){ block.appendChild(el('p',{class:'desc'},['Rate at least two risks on both axes to see your top priorities here.'])); return; }
+  block.appendChild(el('h4',{},['Your Top 2 Priority Risks']));
+  block.appendChild(el('p',{class:'desc'},['Based on your own probability \u00d7 impact ratings. Write a real next step \u2014 "monitor it" won\u2019t hold up.']));
+  top2.forEach(function(id){
+    var r = RISKS.filter(function(x){return x.id===id;})[0];
+    var item = el('div',{class:'mit-item'},[ el('span',{class:'mi-label'},[r.text]) ]);
+    var ta = el('textarea',{placeholder:'What will you actually do about this?'});
+    ta.value = state.a4.mitigations[id] || '';
+    ta.addEventListener('input', function(e){ state.a4.mitigations[id]=e.target.value; refreshEmoMeter(); });
+    item.appendChild(ta); block.appendChild(item);
+  });
+}
+function refreshEmoMeter(){
+  var fill = document.getElementById('emoFill'); if(!fill) return;
+  var totalSeverity=0, rated=0;
+  RISKS.forEach(function(r){ if(state.a4.prob[r.id] && state.a4.imp[r.id]){ totalSeverity += riskSeverity(r.id); rated++; } });
+  var top2 = topTwoRisks();
+  var addressed = top2.filter(function(id){ return (state.a4.mitigations[id]||'').trim().length>15; }).length;
+  var pressure = rated ? clamp((totalSeverity/(rated*9))*100, 10, 100) : 15;
+  pressure = clamp(pressure - (addressed*15), 8, 100);
+  fill.style.width = pressure + '%';
+}
+
+
+/* =========================================================
+   ACTIVITY REVIEW SCREENS
+   Shows right/wrong + rationale for every answer before
+   the learner moves on to the next activity.
+========================================================= */
+function reviewIcon(correct){
+  return el('span',{class:'ri-icon '+(correct?'ok':'bad')},[correct ? '\u2713' : '\u2715']);
+}
+function reviewItem(correct, headline, detail, subline){
+  var kids = [
+    reviewIcon(correct),
+    el('div',{class:'ri-body'},[
+      el('div',{class:'ri-headline'},[headline]),
+      subline ? el('div',{class:'ri-sub'},[subline]) : null,
+      el('div',{class:'ri-why'},[detail])
+    ])
+  ];
+  return el('div',{class:'review-item '+(correct?'ok':'bad')}, kids);
+}
+function keyItem(headline, answerLabel, why){
+  return el('div',{class:'review-item key'},[
+    el('span',{class:'ri-icon key'},['\u2605']),
+    el('div',{class:'ri-body'},[
+      el('div',{class:'ri-headline'},[headline]),
+      el('div',{class:'ri-sub'},['Correct answer: '+answerLabel]),
+      el('div',{class:'ri-why'},[why])
+    ])
+  ]);
+}
+function renderReviewShell(opts){
+  var main = el('div',{class:'review-wrap'},[
+    el('div',{class:'review-scoreline'},[
+      el('span',{class:'review-score-badge '+opts.badge.color},[opts.badge.label]),
+      el('span',{class:'review-score-num'},[opts.scoreLabel])
+    ]),
+    el('h2',{class:'review-title'},[opts.title]),
+    el('p',{class:'review-remark'},[opts.remark]),
+    el('div',{class:'review-list'}, opts.items)
+  ]);
+  var body = el('div',{class:'review-shell-body'},[main]);
+  renderShell(body, { eyebrow: opts.eyebrow, title:'', desc:'' });
+  document.querySelector('.shell-head').style.display = 'none';
+  var wrap = document.querySelector('.review-wrap');
+  wrap.appendChild(el('div',{class:'actions-row'},[
+    el('span',{}),
+    el('button',{class:'btn accent', onclick:opts.nextFn},[opts.nextLabel])
+  ]));
+  watchForReset();
+}
+
+function buildA1Items(s, ans){
+  ans = ans || state.a1;
+  var items = SCOPE_ITEMS.map(function(it){
+    var learnerChoice = ans.scoped[it.id];
+    var correct = learnerChoice === it.correct;
+    var choiceLabel = learnerChoice === 'in' ? 'In Scope' : learnerChoice === 'out' ? 'Out of Scope' : 'Not sorted';
+    var correctLabel = it.correct === 'in' ? 'In Scope' : 'Out of Scope';
+    return reviewItem(correct, it.text,
+      it.why,
+      correct ? 'Marked '+choiceLabel+'.' : 'Marked '+choiceLabel+' \u2014 it should be '+correctLabel+'.');
+  });
+  var f = s.stmtFlags;
+  var stmtCorrect = s.stmtPts >= 10;
+  var stmtDetail = f.blank
+    ? "The success statement wasn't completed \u2014 without it, no one can verify whether the project actually worked."
+    : (f.hasNumber?'\u2713 Includes a number.  ':'\u2715 Missing a number.  ') + (f.hasVerify?'\u2713 Names how it will be verified.  ':'\u2715 Doesn\u2019t say how it will be verified.  ') + (f.notVague?'\u2713 Specific enough to check.':'\u2715 Reads as vague or generic.');
+  items.push(reviewItem(stmtCorrect, 'Success statement', stmtDetail, 'Answer: \u201c'+(ans.statement||'(blank)')+'\u201d'));
+  return items;
+}
+function renderA1Review(){
+  var s = scoreA1();
+  var badge = activityBadge('a1', s.total);
+  renderReviewShell({
+    eyebrow:'Charter \u2014 Review',
+    title:'How your Charter scored',
+    scoreLabel: s.total+' / 25',
+    badge: badge,
+    remark: ACTIVITY_REMARKS.a1[badge.tier],
+    items: buildA1Items(s),
+    nextFn: function(){ goTo('a2'); },
+    nextLabel: 'Continue to Stakeholders \u2192'
+  });
+}
+
+function buildA2Items(s, ans){
+  ans = ans || state.a2;
+  return STAKEHOLDERS.map(function(st){
+    var placed = ans.placement[st.id];
+    var placeCorrect = placed === st.quadrant;
+    var chosenApproach = placed ? ans.engagement[placed] : null;
+    var approachCorrect = placed ? chosenApproach === QUADRANTS[placed].approach : false;
+    var overallCorrect = placeCorrect && approachCorrect;
+    var placedLabel = placed ? QUADRANTS[placed].label : 'Not placed';
+    var correctLabel = QUADRANTS[st.quadrant].label;
+    var sub = placeCorrect
+      ? 'Placed correctly in '+correctLabel+'.' + (approachCorrect ? ' Engagement approach matched.' : ' But the engagement approach chosen doesn\u2019t match this quadrant\u2019s recommended approach ('+APPROACH_LABELS[QUADRANTS[st.quadrant].approach]+').')
+      : 'Placed in '+placedLabel+' \u2014 it belongs in '+correctLabel+'.';
+    return reviewItem(overallCorrect, st.name, st.why, sub);
+  });
+}
+function renderA2Review(){
+  var s = scoreA2();
+  var badge = activityBadge('a2', s.total);
+  renderReviewShell({
+    eyebrow:'Stakeholders \u2014 Review',
+    title:'How your Stakeholder Map scored',
+    scoreLabel: s.total+' / 25',
+    badge: badge,
+    remark: ACTIVITY_REMARKS.a2[badge.tier],
+    items: buildA2Items(s),
+    nextFn: function(){ goTo('a3'); },
+    nextLabel: 'Continue to Roadmap \u2192'
+  });
+}
+
+function buildA3Items(s, ans){
+  ans = ans || state.a3;
+  var items = ROADMAP_TASKS.slice().sort(function(a,b){return a.order-b.order;}).map(function(task){
+    var learnerPos = ans.order.indexOf(task.id) + 1;
+    var posCorrect = learnerPos === task.order;
+    var sub = posCorrect ? 'Placed at step '+learnerPos+' \u2014 correct.' : 'Placed at step '+learnerPos+' \u2014 it belongs at step '+task.order+'.';
+    return reviewItem(posCorrect, task.text, task.why, sub);
+  });
+  items.push(el('div',{class:'review-subheading'},['Milestones']));
+  ROADMAP_TASKS.forEach(function(task){
+    var starred = !!ans.milestones[task.id];
+    var shouldStar = CORRECT_MILESTONES.indexOf(task.id) > -1;
+    var correct = starred === shouldStar;
+    var sub = starred
+      ? (shouldStar ? 'Flagged as a milestone \u2014 correct.' : 'Flagged as a milestone, but it\u2019s a working step, not a checkpoint.')
+      : (shouldStar ? 'Not flagged \u2014 it should be one of the 3 milestones.' : 'Correctly left unflagged.');
+    items.push(reviewItem(correct, task.text, MILESTONE_WHY[task.id], sub));
+  });
+  return items;
+}
+function renderA3Review(){
+  var s = scoreA3();
+  var badge = activityBadge('a3', s.total);
+  renderReviewShell({
+    eyebrow:'Roadmap \u2014 Review',
+    title:'How your Roadmap scored',
+    scoreLabel: s.total+' / 25',
+    badge: badge,
+    remark: ACTIVITY_REMARKS.a3[badge.tier],
+    items: buildA3Items(s),
+    nextFn: function(){ goTo('a4'); },
+    nextLabel: 'Continue to Risk Radar \u2192'
+  });
+}
+
+function buildA4Items(s, ans){
+  ans = ans || state.a4;
+  var items = RISKS.map(function(r){
+    var p = ans.prob[r.id], i = ans.imp[r.id];
+    var rated = !!(p && i);
+    var matchesSuggestion = rated && p === r.sugProb && i === r.sugImp;
+    var yourRating = rated ? 'Probability: '+p.toUpperCase()+' \u00b7 Impact: '+i.toUpperCase() : 'Not rated';
+    var refRating = 'Reference: Probability '+r.sugProb.toUpperCase()+' \u00b7 Impact '+r.sugImp.toUpperCase();
+    return reviewItem(matchesSuggestion, r.text, r.why, yourRating+'.  '+refRating+'.');
+  });
+  items.push(el('div',{class:'review-subheading'},['Mitigations']));
+  s.top2.forEach(function(id){
+    var r = RISKS.filter(function(x){return x.id===id;})[0];
+    var fb = s.mitFeedback[id];
+    var earnedFull = fb.earned >= 7;
+    var detail;
+    if(fb.tooShort) detail = 'Too short to count as a real plan \u2014 name a concrete next step, not just a phrase.';
+    else if(fb.isBad) detail = '\u201c'+(ans.mitigations[id]||'')+'\u201d reads as "wait and see" \u2014 that\u2019s not a mitigation for a top-priority risk.';
+    else if(fb.hasVerb) detail = 'This names a concrete action \u2014 that\u2019s exactly what a real mitigation looks like.';
+    else detail = 'This is on the right track, but naming a specific action (escalate, schedule, assign, confirm\u2026) would make it stronger.';
+    items.push(reviewItem(earnedFull, r.text, detail, 'Mitigation: \u201c'+(ans.mitigations[id]||'(blank)')+'\u201d'));
+  });
+  return items;
+}
+function renderA4Review(){
+  var s = scoreA4();
+  var badge = activityBadge('a4', s.total);
+  renderReviewShell({
+    eyebrow:'Risk Radar \u2014 Review',
+    title:'How your Risk Radar scored',
+    scoreLabel: s.total+' / 25',
+    badge: badge,
+    remark: ACTIVITY_REMARKS.a4[badge.tier],
+    items: buildA4Items(s),
+    nextFn: function(){ finishSimulation(); },
+    nextLabel: 'See My Final Results \u2192'
+  });
+}
+
+/* =========================================================
+   ANSWER KEY (trainer-facing reference view)
+========================================================= */
+function buildAnswerKeySections(){
+  var a1Items = SCOPE_ITEMS.map(function(it){
+    return keyItem(it.text, it.correct==='in' ? 'In Scope' : 'Out of Scope', it.why);
+  });
+  a1Items.push(keyItem('Success statement',
+    'No single fixed answer \u2014 must include a number, name how it will be verified, and be specific enough for someone else to check.',
+    'Example: "Onboarding time drops from 10 days to 3, verified by Ops within 30 days of launch."'));
+
+  var a2Items = STAKEHOLDERS.map(function(st){
+    return keyItem(st.name, QUADRANTS[st.quadrant].label+' \u2192 '+APPROACH_LABELS[QUADRANTS[st.quadrant].approach], st.why);
+  });
+
+  var a3Items = ROADMAP_TASKS.slice().sort(function(a,b){return a.order-b.order;}).map(function(task){
+    return keyItem(task.text, 'Step '+task.order+' of 6', task.why);
+  });
+  a3Items.push(el('div',{class:'review-subheading'},['Milestones']));
+  ROADMAP_TASKS.forEach(function(task){
+    var shouldStar = CORRECT_MILESTONES.indexOf(task.id) > -1;
+    a3Items.push(keyItem(task.text, shouldStar ? 'Milestone' : 'Not a milestone', MILESTONE_WHY[task.id]));
+  });
+
+  var a4Items = RISKS.map(function(r){
+    return keyItem(r.text, 'Probability '+r.sugProb.toUpperCase()+' \u00b7 Impact '+r.sugImp.toUpperCase(), r.why);
+  });
+  a4Items.push(keyItem('Mitigations for the top 2 priority risks (by probability \u00d7 impact)',
+    'No single fixed answer \u2014 must name a concrete action (escalate, schedule, assign, confirm\u2026), not "monitor it" or "wait and see."',
+    'The two priority risks depend on how each learner rates probability and impact, so mitigations are graded on specificity, not against a fixed pair.'));
+
+  return [
+    buildAccordionSection('Charter', null, a1Items),
+    buildAccordionSection('Stakeholders', null, a2Items),
+    buildAccordionSection('Roadmap', null, a3Items),
+    buildAccordionSection('Risk Radar', null, a4Items)
+  ];
+}
+function renderAnswerKey(){
+  stopAllPolling();
+  var wrap = el('div',{class:'dash-wrap'},[
+    el('div',{class:'overview-wrap'},[
+      el('div',{class:'overview-header'},[
+        el('h3',{},['Answer Key']),
+        el('span',{style:'font-size:11.5px;color:#999;'},['Reference answers for every activity'])
+      ])
+    ].concat(buildAnswerKeySections())),
+    el('div',{class:'actions-row'},[
+      el('button',{class:'btn ghost', onclick:function(){ goTo('trainerDashboard'); }},['\u2190 Back to Dashboard']),
+      el('span',{})
+    ])
+  ]);
+  var right = el('div',{class:'who-pill'},[
+    el('span',{},['Signed in as Trainer']),
+    el('button',{onclick:function(){ goTo('landing'); }},['Log Out'])
+  ]);
+  var app = document.getElementById('app'); app.innerHTML='';
+  app.appendChild(topBar(right));
+  app.appendChild(el('div',{class:'shell'},[
+    el('div',{class:'shell-head'},[ el('div',{},[ el('span',{class:'eyebrow'},['Reference Material']), el('h1',{},['Answer Key']), el('p',{},['Project Northstar: The Launch Challenge \u2014 correct answers and rationale for every activity.']) ]) ]),
+    wrap
+  ]));
+}
+
+/* =========================================================
+   DEBRIEF
+========================================================= */
+function renderDebrief(){
+  stopCountdown(); stopPings(); stopSessionPoll();
+  var scores = computeAllScores();
+  var ob = overallBadge(scores.total);
+  var b1 = activityBadge('a1', scores.a1.total), b2 = activityBadge('a2', scores.a2.total),
+      b3 = activityBadge('a3', scores.a3.total), b4 = activityBadge('a4', scores.a4.total);
+
+  var hero = el('div',{class:'debrief-hero'},[
+    el('span',{class:'eyebrow'},['Kickoff Pack \u2014 Complete']),
+    el('div',{class:'score-ring tier-'+ob.tier, style:'--score-pct:'+scores.total+'%'},[ el('div',{class:'score-ring-inner'},[ el('div',{class:'sr-num'},[String(scores.total)]), el('div',{class:'sr-den'},['/ 100']) ]) ]),
+    el('div',{class:'pass-badge tier-'+ob.tier},[ob.label]),
+    el('p',{class:'debrief-remark'},[OVERALL_REMARKS[ob.tier]])
+  ]);
+  var breakdown = el('div',{class:'breakdown-grid'},[
+    bdCard('Charter', scores.a1.total, 25, (scores.a1.sortCorrect)+'/6 scope calls correct.', b1),
+    bdCard('Stakeholders', scores.a2.total, 25, (scores.a2.placedCorrect)+'/5 placed correctly.', b2),
+    bdCard('Roadmap', scores.a3.total, 25, (scores.a3.correctMs)+'/3 milestones matched.', b3),
+    bdCard('Risk Radar', scores.a4.total, 25, scores.a4.distinct+' distinct rating patterns used.', b4)
+  ]);
+
+  var overview = el('div',{class:'overview-wrap'},[
+    el('div',{class:'overview-header'},[
+      el('h3',{},['Full Answer Overview']),
+      el('span',{style:'font-size:11.5px;color:#999;'},['Tap a section to expand'])
+    ]),
+    buildAccordionSection('Charter', b1, buildA1Items(scores.a1)),
+    buildAccordionSection('Stakeholders', b2, buildA2Items(scores.a2)),
+    buildAccordionSection('Roadmap', b3, buildA3Items(scores.a3)),
+    buildAccordionSection('Risk Radar', b4, buildA4Items(scores.a4))
+  ]);
+
+  var reflect = el('div',{class:'reflect-box'},[
+    el('h4',{},['Reflection']),
+    el('p',{style:'font-size:12.5px;color:#666;margin:0 0 10px;'},['One thing you\u2019ll do differently the next time you start a project:']),
+    (function(){ var ta = el('textarea',{}); ta.value = state.reflection; ta.addEventListener('input', function(e){ state.reflection = e.target.value; }); return ta; })()
+  ]);
+  var alreadySubmitted = !!state.submitted;
+  var footer = el('div',{class:'footer-actions'},
+    alreadySubmitted
+      ? [ el('button',{class:'btn ghost', onclick:function(){ goTo('landing'); }},['Log Out']) ]
+      : [
+          el('button',{class:'btn ghost', onclick:function(){ goTo('a4'); }},['\u2190 Review Risk Radar']),
+          el('button',{class:'btn teal', onclick:confirmComplete},['Complete Simulation'])
+        ]
+  );
+
+  var app = document.getElementById('app'); app.innerHTML='';
+  app.appendChild(topBar());
+  app.appendChild(el('div',{class:'shell'},[ el('div',{},[hero, breakdown, overview, reflect, footer]) ]));
+}
+function buildAccordionSection(title, badge, items){
+  var section = el('div',{class:'acc-section'});
+  var body = el('div',{class:'acc-body'},[el('div',{class:'acc-body-inner'},[ el('div',{class:'review-list'}, items) ])]);
+  var leftKids = [ el('span',{class:'at-title'},[title]) ];
+  if(badge) leftKids.push(el('span',{class:'bd-badge-chip '+badge.color},[badge.label]));
+  var trigger = el('button',{type:'button', class:'acc-trigger', onclick:function(){
+    section.classList.toggle('open');
+  }},[
+    el('span',{class:'acc-trigger-left'}, leftKids),
+    el('span',{class:'acc-chevron'},['\u25be'])
+  ]);
+  section.appendChild(trigger);
+  section.appendChild(body);
+  return section;
+}
+function bdCard(title, score, max, note, badge){
+  var pct = clamp((score/max)*100,0,100);
+  return el('div',{class:'bd-card badge-'+badge.tier},[
+    el('h4',{},[title, el('span',{class:'bd-badge-chip '+badge.color},[badge.label])]),
+    el('div',{class:'bd-bar'},[el('div',{class:'bd-fill', style:'width:'+pct+'%'})]),
+    el('div',{class:'bd-score'},[score+' / '+max]),
+    el('div',{class:'bd-note'},[note])
+  ]);
+}
+
+function confirmComplete(){
+  var root = document.getElementById('modalRoot'); root.innerHTML='';
+  root.appendChild(el('div',{class:'modal-veil'},[
+    el('div',{class:'modal-box'},[
+      el('h3',{},['Submit your Kickoff Pack?']),
+      el('p',{},['This locks in your score and sends completion back to your LMS and trainer dashboard.']),
+      el('div',{class:'modal-actions'},[
+        el('button',{class:'btn ghost', onclick:function(){ root.innerHTML=''; }},['Keep Reviewing']),
+        el('button',{class:'btn accent', onclick:function(){ root.innerHTML=''; submitCompletion(); }},['Submit & Complete'])
+      ])
+    ])
+  ]));
+}
+async function submitCompletion(){
+  var scores = state.scores || computeAllScores();
+  state.submitted = true;
+  await saveLearnerRecord({
+    status:'completed', progress:'completed', score: Math.round(scores.total), completedAt: Date.now(),
+    responses: {
+      scores: scores,
+      successStatement: state.a1.statement,
+      scoped: state.a1.scoped,
+      placement: state.a2.placement,
+      engagement: state.a2.engagement,
+      roadmapOrder: state.a3.order,
+      milestones: state.a3.milestones,
+      riskRatings: { prob: state.a4.prob, imp: state.a4.imp },
+      mitigations: state.a4.mitigations,
+      reflection: state.reflection
+    }
+  });
+  try{ window.parent.postMessage({ type:'QUIZ_COMPLETED', score: Math.round(scores.total) }, '*'); }catch(e){}
+  showToast('<b>Submitted.</b> Score '+scores.total+'/100 sent to your LMS and trainer.');
+  renderDebrief();
+}
+function finishSimulation(){ goTo('debrief'); }
+
+/* =========================================================
+   TRAINER DASHBOARD
+========================================================= */
+var dashExpanded = {};
+function renderTrainerDashboard(){
+  stopAllPolling();
+  var wrap = el('div',{class:'dash-wrap'});
+  wrap.appendChild(el('div',{class:'stat-row', id:'statRow'}));
+  wrap.appendChild(el('div',{class:'control-bar', id:'controlBar'}));
+  wrap.appendChild(el('div',{class:'table-wrap'},[
+    el('table',{class:'roster'},[
+      el('thead',{},[el('tr',{},[
+        el('th',{},['Learner']), el('th',{},['Email']), el('th',{},['Status']),
+        el('th',{},['Progress']), el('th',{},['Score']), el('th',{},['Last Active']), el('th',{},[''])
+      ])]),
+      el('tbody',{id:'rosterBody'})
+    ])
+  ]));
+
+  var right = el('div',{class:'who-pill'},[
+    el('button',{class:'btn ghost sm', onclick:function(){ goTo('answerKey'); }},['Answer Key']),
+    el('span',{},['Signed in as Trainer']),
+    el('button',{onclick:function(){ goTo('landing'); }},['Log Out'])
+  ]);
+
+  var app = document.getElementById('app'); app.innerHTML='';
+  app.appendChild(topBar(right));
+  app.appendChild(el('div',{class:'shell'},[
+    el('div',{class:'shell-head'},[ el('div',{},[ el('span',{class:'eyebrow'},['Live Session Control']), el('h1',{},['Trainer Dashboard']), el('p',{},['Project Northstar: The Launch Challenge \u2014 real-time participant visibility.']) ]) ]),
+    wrap
+  ]));
+
+  refreshDashboard();
+  state.dashPollTimer = setInterval(refreshDashboard, 3000);
+}
+
+async function refreshDashboard(){
+  var session = await getSession();
+  var records = await listLearnerRecords();
+
+  var total = records.length;
+  var inProgress = records.filter(function(r){return r.status==='in_progress';}).length;
+  var completed = records.filter(function(r){return r.status==='completed';}).length;
+  var completedRecs = records.filter(function(r){return r.status==='completed' && r.score!=null;});
+  var avgScore = completedRecs.length ? Math.round(completedRecs.reduce(function(a,r){return a+r.score;},0)/completedRecs.length) : 0;
+  var passCount = completedRecs.filter(function(r){return r.score>=65;}).length;
+  var passRate = completedRecs.length ? Math.round((passCount/completedRecs.length)*100) : 0;
+
+  var statRow = document.getElementById('statRow');
+  if(statRow){
+    statRow.innerHTML = '';
+    [ ['Total Learners', total], ['Waiting', records.filter(function(r){return r.status==='waiting';}).length],
+      ['In Progress', inProgress], ['Completed', completed], ['Avg Score / Pass %', avgScore+' / '+passRate+'%'] ]
+    .forEach(function(pair){
+      statRow.appendChild(el('div',{class:'stat-card'},[ el('div',{class:'sc-label'},[pair[0]]), el('div',{class:'sc-value'},[String(pair[1])]) ]));
+    });
+  }
+
+  var controlBar = document.getElementById('controlBar');
+  if(controlBar){
+    controlBar.innerHTML = '';
+    var statusEl = el('div',{class:'cb-status'},[
+      el('span',{class:'session-dot '+(session.status==='active'?'live':'waiting')}),
+      el('span',{},[session.status==='active' ? 'Simulation Active' : 'Waiting Room \u2014 not started'])
+    ]);
+    var actions = el('div',{class:'cb-actions'},[
+      el('button',{class:'btn teal sm', onclick:startSimulationGlobal, disabled: session.status==='active' ? 'disabled': null},['Start Simulation']),
+      el('button',{class:'btn ghost sm', onclick:confirmResetSimulation},['Reset Simulation']),
+      el('span',{class:'last-sync'},['Synced '+new Date().toLocaleTimeString()])
+    ]);
+    controlBar.appendChild(statusEl); controlBar.appendChild(actions);
+  }
+
+  var body = document.getElementById('rosterBody');
+  if(body){
+    body.innerHTML = '';
+    if(!records.length){
+      body.appendChild(el('tr',{class:'empty-row'},[el('td',{colspan:'7'},['No learners have logged in yet.'])]));
+    } else {
+      records.forEach(function(r){
+        var statusChip = r.status==='completed' ? el('span',{class:'status-chip completed'},['Completed'])
+          : r.status==='in_progress' ? el('span',{class:'status-chip progress'},['In Progress'])
+          : el('span',{class:'status-chip waiting'},['Waiting']);
+        var tr = el('tr',{},[
+          el('td',{},[r.name||'\u2014']),
+          el('td',{},[r.email||'\u2014']),
+          el('td',{},[statusChip]),
+          el('td',{},[progressLabel(r.progress)]),
+          el('td',{},[r.score!=null ? String(r.score)+' / 100' : '\u2014']),
+          el('td',{},[r.lastActive ? timeAgo(r.lastActive) : '\u2014']),
+          el('td',{},[el('button',{class:'row-expand-btn', onclick:(function(id){ return function(){ dashExpanded[id]=!dashExpanded[id]; refreshDashboard(); }; })(r.id)},[dashExpanded[r.id]?'Hide':'View'])])
+        ]);
+        body.appendChild(tr);
+        if(dashExpanded[r.id]){
+          body.appendChild(el('tr',{class:'detail-row'},[el('td',{colspan:'7'},[renderLearnerDetail(r)])]));
+        }
+      });
+    }
+  }
+}
+function progressLabel(p){
+  var map = {waiting:'Waiting Room', a1:'Charter', a2:'Stakeholders', a3:'Roadmap', a4:'Risk Radar', completed:'Completed'};
+  return map[p] || p || '\u2014';
+}
+function timeAgo(ts){
+  var s = Math.round((Date.now()-ts)/1000);
+  if(s<60) return s+'s ago';
+  if(s<3600) return Math.round(s/60)+'m ago';
+  return Math.round(s/3600)+'h ago';
+}
+function renderLearnerDetail(r){
+  if(!r.responses){
+    return el('div',{class:'detail-text'},['No submitted responses yet \u2014 learner is still in progress or hasn\u2019t started.']);
+  }
+  var resp = r.responses, sc = resp.scores;
+  var a1Ans = { scoped: resp.scoped, statement: resp.successStatement };
+  var a2Ans = { placement: resp.placement, engagement: resp.engagement };
+  var a3Ans = { order: resp.roadmapOrder, milestones: resp.milestones };
+  var a4Ans = { prob: resp.riskRatings.prob, imp: resp.riskRatings.imp, mitigations: resp.mitigations };
+
+  var accordions = [
+    buildAccordionSection('Charter', activityBadge('a1', sc.a1.total), buildA1Items(sc.a1, a1Ans)),
+    buildAccordionSection('Stakeholders', activityBadge('a2', sc.a2.total), buildA2Items(sc.a2, a2Ans)),
+    buildAccordionSection('Roadmap', activityBadge('a3', sc.a3.total), buildA3Items(sc.a3, a3Ans)),
+    buildAccordionSection('Risk Radar', activityBadge('a4', sc.a4.total), buildA4Items(sc.a4, a4Ans))
+  ];
+  var wrap = el('div',{class:'overview-wrap', style:'margin:0;'}, accordions);
+  var reflection = el('div',{class:'detail-item', style:'margin-top:12px;'},[
+    el('div',{class:'di-label'},['Reflection']),
+    el('div',{class:'detail-text'},[resp.reflection||'(blank)'])
+  ]);
+  return el('div',{},[wrap, reflection]);
+}
+
+async function startSimulationGlobal(){
+  await setSessionStatus('active');
+  showToast('<b>Session started.</b> All learners in the waiting room now have access.');
+  refreshDashboard();
+}
+function confirmResetSimulation(){
+  var root = document.getElementById('modalRoot'); root.innerHTML='';
+  root.appendChild(el('div',{class:'modal-veil'},[
+    el('div',{class:'modal-box'},[
+      el('h3',{},['Reset the session?']),
+      el('p',{},['This clears all learner progress and scores, and returns everyone to the waiting room. This can\u2019t be undone.']),
+      el('div',{class:'modal-actions'},[
+        el('button',{class:'btn ghost', onclick:function(){ root.innerHTML=''; }},['Cancel']),
+        el('button',{class:'btn accent', onclick:async function(){ root.innerHTML=''; await clearAllLearnerRecords(); await setSessionStatus('waiting'); dashExpanded={}; showToast('<b>Session reset.</b> All learners returned to the waiting room.'); refreshDashboard(); }},['Reset Session'])
+      ])
+    ])
+  ]));
+}
+
+/* =========================================================
+   POLLING CLEANUP / ROUTER
+========================================================= */
+function stopAllPolling(){ stopSessionPoll(); if(state.dashPollTimer){ clearInterval(state.dashPollTimer); state.dashPollTimer=null; } }
+
+function goTo(screen, payload){
+  stopCountdown(); stopPings(); stopAllPolling();
+  state.screen = screen;
+  if(screen==='landing') renderLanding();
+  else if(screen==='waiting') renderWaiting();
+  else if(screen==='alreadyCompleted') renderAlreadyCompleted(payload);
+  else if(screen==='a1') renderA1();
+  else if(screen==='a1review') renderA1Review();
+  else if(screen==='a2') renderA2();
+  else if(screen==='a2review') renderA2Review();
+  else if(screen==='a3') renderA3();
+  else if(screen==='a3review') renderA3Review();
+  else if(screen==='a4') renderA4();
+  else if(screen==='a4review') renderA4Review();
+  else if(screen==='debrief') renderDebrief();
+  else if(screen==='trainerDashboard') renderTrainerDashboard();
+  else if(screen==='answerKey') renderAnswerKey();
+  window.scrollTo(0,0);
+}
+
+goTo('landing');
+})();
+</script>
+</body>
+</html>
