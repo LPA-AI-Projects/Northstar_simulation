@@ -19,6 +19,19 @@ Trainer-paced simulation. Learner progress, scores, and session state are stored
 
 Optional: set `TRAINER_CODE` is currently hardcoded in the HTML as `2468` (same as the original sim). Change it in `public/index.html` if you need a different facilitator code.
 
+## Troubleshooting
+
+**`ECONNREFUSED 127.0.0.1:5432` in deploy logs** — the service has no working `DATABASE_URL`, so
+Postgres defaults to localhost inside the container. Fix it on the web service:
+
+- **Variables** → **New Variable** → `DATABASE_URL` = `${{Postgres.DATABASE_URL}}`
+- The name inside `${{ }}` must match the Postgres service name on the project canvas exactly
+  (e.g. `${{Postgres-abc1.DATABASE_URL}}`). A wrong name leaves the template unresolved.
+- Both services must be in the **same project and environment**, then redeploy.
+
+The server now refuses to start with a localhost or unresolved connection string and prints the
+exact setup steps instead.
+
 ## Local development
 
 ```bash
